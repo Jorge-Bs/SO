@@ -2,12 +2,20 @@
 
 char * nombreEstado[]={"LISTO", "EJECUCION", "BLOQUEADO","FINALIZADO"};
 
-char * nombreTransicion[]={"DESPACHAR", "BLOQUEAR", "DESPERTAR", "FINALIZAR"};
+char * nombreTransicion[]={ "DESPERTAR","DESPACHAR", "BLOQUEAR",  "FINALIZAR"};
 
 
 int cambiarEstado(int estadoActual, int eventoOcurrido) {
   
   int nuevoEstado=estadoActual;
+
+  if(estadoActual==eventoOcurrido){
+    return -1;
+  }
+
+  if(eventoOcurrido==FINALIZAR){
+    nuevoEstado=FINALIZADO;
+  }
   
   switch (estadoActual) {
     
@@ -22,6 +30,7 @@ int cambiarEstado(int estadoActual, int eventoOcurrido) {
     case BLOQUEADO: if (eventoOcurrido==DESPERTAR) nuevoEstado=LISTO;
       break;
   }
+  
   return(nuevoEstado);
 }
 

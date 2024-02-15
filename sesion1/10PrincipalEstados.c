@@ -4,7 +4,7 @@
 
 #include "10Estados.h"
 
-main (int argc, char *argv[]) {
+void main (int argc, char *argv[]) {
   
   int estado;
   int transicion;
@@ -22,7 +22,13 @@ main (int argc, char *argv[]) {
   else {
     estado=atoi(argv[1]);
     transicion=atoi(argv[2]);
-    printf("La transición %s cambia al proceso del estado %s al estado %s\n", getNombreTransicion(transicion),getNombreEstado(estado),getNombreEstado(cambiarEstado(estado,transicion)));
+    int result = cambiarEstado(estado,transicion);
+    if(result!=-1){
+      printf("La transición %s cambia al proceso del estado %s al estado %s\n", getNombreTransicion(transicion),getNombreEstado(estado),getNombreEstado(result));
+    }else{
+      printf("No se ha realizado ningun cambio\n");
+    }
+    
   }
   exit(1);
 }
