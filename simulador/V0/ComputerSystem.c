@@ -47,11 +47,23 @@ void ComputerSystem_PowerOn(int argc, char *argv[]) {
 	Processor_InitializeRegisters(initialValueForPCRegister, initialValueForAccumulatorRegister, initialValueForPSWRegister);
 	
 	// If PROGRAM_TO_BE_EXECUTED exists, is executed
-	programFile= fopen(PROGRAM_TO_BE_EXECUTED, "r");
+	//programFile= fopen(PROGRAM_TO_BE_EXECUTED, "r");
+
+	programFile = fopen(NAME_OF_PROGRAM,"r");
+	char line[LINEMAXIMUMLENGTH];
+	if(fgets(line, LINEMAXIMUMLENGTH, programFile)==NULL){
+		programFile = fopen(PROGRAM_TO_BE_EXECUTED,"r");
+	}else{
+		programFile = fopen(line,"r");
+	}
+	
+	
+	
 	
 	// Check if programFile exists, if not, poweroff system
 	if (programFile==NULL)
-		ComputerSystem_PowerOff();
+		programFile = fopen(PROGRAM_TO_BE_EXECUTED,"r");
+		//ComputerSystem_PowerOff();
 	
 	// Load the program in main memory, beginning at the address given by the second argument
 	OperatingSystem_LoadProgram(programFile, initialValueForPCRegister);
@@ -64,6 +76,7 @@ void ComputerSystem_PowerOn(int argc, char *argv[]) {
 
 // Powers off the CS (the C program ends)
 void ComputerSystem_PowerOff() {
+	ComputerSystem_DebugMessage(99,SHUTDOWN);
 	exit(0);
 }
 

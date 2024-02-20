@@ -10,6 +10,8 @@ void ComputerSystem_DebugMessage(int , char,  ...);
 
 // General parameters of the global Computer System
 #define PROGRAM_TO_BE_EXECUTED "programToBeExecuted"
+//#define PROGRAM_TO_BE_EXECUTED "prog-V0-E5"
+#define NAME_OF_PROGRAM "nameOfTheProgramToBeExecuted"
 
 // Main memory size (number of memory cells)
 #define MAINMEMORYSIZE 256

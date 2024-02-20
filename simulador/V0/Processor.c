@@ -164,13 +164,27 @@ void Processor_DecodeAndExecuteInstruction() {
 		case HALT_INST: 
 			registerPSW_CPU=POWEROFF;
 			break;
+
+		case MEMADD_INST:
+			registerMAR_CPU=operand2;
+
+			Buses_write_AddressBus_From_To(CPU,MAINMEMORY);
+
+			registerCTRL_CPU=CTRLREAD;
+
+			Buses_write_ControlBus_From_To(CPU,MAINMEMORY);
+
+			registerAccumulator_CPU = operand1 + registerMBR_CPU.cell;
+
+			registerPC_CPU++;
+			break;
 			  
 		// Unknown instruction
 		default : registerPC_CPU++;
 			  break;
 	}
 	// Show final part of HARDWARE message with	CPU registers
-	ComputerSystem_DebugMessage(3,HARDWARE,InstructionNames[operationCode],operand1,operand2,registerPC_CPU,registerAccumulator_CPU,registerAccumulator_CPU);
+	ComputerSystem_DebugMessage(3,HARDWARE,InstructionNames[operationCode],operand1,operand2,registerPC_CPU,registerAccumulator_CPU,registerAccumulator_CPU,registerPSW_CPU);
 }
 	
 // Hardware interrup processing
