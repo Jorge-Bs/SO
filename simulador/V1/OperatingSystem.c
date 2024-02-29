@@ -153,11 +153,18 @@ int OperatingSystem_LongTermScheduler() {
 	
 	for (i=0; programList[i]!=NULL && i<PROGRAMSMAXNUMBER ; i++) {
 		PID=OperatingSystem_CreateProcess(i);
-		numberOfSuccessfullyCreatedProcesses++;
-		if (programList[i]->type==USERPROGRAM) 
-			numberOfNotTerminatedUserProcesses++;
-		// Move process to the ready state
-		OperatingSystem_MoveToTheREADYState(PID);
+		//Inicio V1-EJ4-B
+		if(PID==NOFREEENTRY){
+			ComputerSystem_DebugMessage(TIMED_MESSAGE,103,ERROR,programList[i]->executableName);
+		}
+		//Inicio V1-EJ4-B
+		else{
+			numberOfSuccessfullyCreatedProcesses++;
+			if (programList[i]->type==USERPROGRAM) 
+				numberOfNotTerminatedUserProcesses++;
+			// Move process to the ready state
+			OperatingSystem_MoveToTheREADYState(PID);
+		}
 	}
 
 	// Return the number of succesfully created processes
@@ -176,6 +183,12 @@ int OperatingSystem_CreateProcess(int indexOfExecutableProgram) {
 
 	// Obtain a process ID
 	PID=OperatingSystem_ObtainAnEntryInTheProcessTable();
+
+	//INICIO V1-EJ4-A
+	if(PID==NOFREEENTRY){
+		return PID;
+	}
+	//FIN  V1-EJ4-A
 
 	// Check if programFile exists
 	programFile=fopen(executableProgram->executableName, "r");
