@@ -14,3 +14,4 @@ INST(IRET)	// 13	0x0d
 INST(MOV)   // 14   0x0e
 INST(RET)   // 15   0x0f
 INST(CALL)   // 16   0x10
+INST(MEMADD) // 17  0x11

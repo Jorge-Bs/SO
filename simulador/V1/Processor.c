@@ -290,7 +290,23 @@ void Processor_DecodeAndExecuteInstruction() {
 		case CALL_INST: // Jump to a subroutine
 			Processor_CopyInRawMemory(--registerSP_CPU,registerPC_CPU+1);
 			registerPC_CPU+=operand1;
-			break;		
+			break;	
+		//Inicio V1-Ej0
+		case MEMADD_INST:
+
+			registerMAR_CPU=operand2;
+			// Send to the MMU controller the address in which the reading has to take place: use the address bus for this
+			Buses_write_AddressBus_From_To(CPU, MMU);
+			// Tell the MMU controller to read
+			registerCTRL_CPU=CTRLREAD;
+			Buses_write_ControlBus_From_To(CPU,MMU);
+			
+
+			registerAccumulator_CPU=operand1+registerMBR_CPU.cell;
+			Processor_CheckOverflow(operand1,registerMBR_CPU.cell,REGISTERACCUMULATOR_CPU);
+			registerPC_CPU++;
+			break;
+		//Fin V1-Ej0
 
 		// Unknown instruction
 		default : 

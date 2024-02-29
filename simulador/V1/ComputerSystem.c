@@ -14,6 +14,7 @@ extern int COLOURED;
 extern char *debugLevel;
 
 // Functions prototypes
+void ComputerSystem_PrintProgramList();//V1-EJ1
 
 // Powers on of the Computer System.
 void ComputerSystem_PowerOn(int argc, char *argv[], int paramIndex) {
@@ -42,6 +43,9 @@ void ComputerSystem_PowerOn(int argc, char *argv[], int paramIndex) {
 	// Obtain a list of programs in the command line
 	int programsFromFilesBaseIndex = ComputerSystem_ObtainProgramList(argc, argv, paramIndex);
 
+	ComputerSystem_PrintProgramList();//V1-Ej2
+
+
 	// Request the OS to do the initial set of tasks. The last one will be
 	// the processor allocation to the process with the highest priority
 	OperatingSystem_Initialize(programsFromFilesBaseIndex);
@@ -60,3 +64,16 @@ void ComputerSystem_PowerOff() {
 
 /////////////////////////////////////////////////////////
 //  New functions below this line  //////////////////////
+
+//Inicio V1-Ej1
+void ComputerSystem_PrintProgramList(){
+	ComputerSystem_DebugMessage(TIMED_MESSAGE,101,INIT);
+	//i=1 ya que en el cero esta el SIP
+	for(int i=1; programList[i]!=NULL && i<PROGRAMSMAXNUMBER ; i++){
+		ComputerSystem_DebugMessage(NO_TIMED_MESSAGE,102,INIT,programList[i]->executableName,programList[i]->arrivalTime);
+	}
+	
+	
+	
+}
+//Fin V1-Ej1
