@@ -175,7 +175,7 @@ int OperatingSystem_LongTermScheduler() {
 			ComputerSystem_DebugMessage(TIMED_MESSAGE,105,ERROR,programList[i]->executableName);
 		}
 		//Fin V1-EJ6-B
-		
+
 		else{
 			numberOfSuccessfullyCreatedProcesses++;
 			if (programList[i]->type==USERPROGRAM) 
@@ -241,8 +241,13 @@ int OperatingSystem_CreateProcess(int indexOfExecutableProgram) {
 	//Fin V1-EJ6-A
 
 	// Load program in the allocated memory
-	OperatingSystem_LoadProgram(programFile, loadingPhysicalAddress, processSize);
-	
+	//Inicio V1-EJ7-A
+	if(OperatingSystem_LoadProgram(programFile, loadingPhysicalAddress, processSize)==TOOBIGPROCESS){
+		return TOOBIGPROCESS;
+	}
+	//Fin V1-EJ7-A
+
+
 	// PCB initialization
 	OperatingSystem_PCBInitialization(PID, loadingPhysicalAddress, processSize, priority, indexOfExecutableProgram);
 	
