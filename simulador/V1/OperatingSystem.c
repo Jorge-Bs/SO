@@ -78,9 +78,11 @@ void OperatingSystem_Initialize(int programsFromFileIndex) {
 
 	MAINMEMORYSECTIONSIZE = OS_address_base / PROCESSTABLEMAXSIZE;
 
+	//Inicio V1-EJ8
 	if (initialPID<0) // if not assigned in options...
-		initialPID=0; 
+		initialPID=PROCESSTABLEMAXSIZE-1; 
 	
+	//Fin V1-Ej8
 	// Space for the processTable
 	processTable = (PCB *) malloc(PROCESSTABLEMAXSIZE*sizeof(PCB));
 	
