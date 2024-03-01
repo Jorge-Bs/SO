@@ -156,8 +156,18 @@ int OperatingSystem_LongTermScheduler() {
 		//Inicio V1-EJ4-B
 		if(PID==NOFREEENTRY){
 			ComputerSystem_DebugMessage(TIMED_MESSAGE,103,ERROR,programList[i]->executableName);
+		}//Fin V1-EJ4-B
+		
+		//Incio V1-EJ5-B
+		else if(PID==PROGRAMDOESNOTEXIST){
+			ComputerSystem_DebugMessage(TIMED_MESSAGE,104,ERROR,programList[i]->executableName,"--- it does not exist ---");
 		}
-		//Inicio V1-EJ4-B
+		//Fin V1-EJ5-B
+		//Inicio V1-EJ5-C
+		else if(PID==PROGRAMNOTVALID){
+			ComputerSystem_DebugMessage(TIMED_MESSAGE,104,ERROR,programList[i]->executableName,"--- invalid priority or size ---");
+		}
+		//Fin V1-EJ5-C
 		else{
 			numberOfSuccessfullyCreatedProcesses++;
 			if (programList[i]->type==USERPROGRAM) 
@@ -193,11 +203,25 @@ int OperatingSystem_CreateProcess(int indexOfExecutableProgram) {
 	// Check if programFile exists
 	programFile=fopen(executableProgram->executableName, "r");
 
+	//Inicio V1-EJ5-B
+
+	if(programFile==NULL){
+		return PROGRAMDOESNOTEXIST;
+	}
+
+	//Fin V1-EJ5-B
+
 	// Obtain the memory requirements of the program
 	processSize=OperatingSystem_ObtainProgramSize(programFile);	
 
 	// Obtain the priority for the process
 	priority=OperatingSystem_ObtainPriority(programFile);
+
+	//Inicio V1-Ej5-C
+	if(processSize==PROGRAMNOTVALID || priority==PROGRAMNOTVALID){
+		return PROGRAMNOTVALID;
+	}
+	//Fin V1-Ej5-C
 	
 	// Obtain enough memory space
  	loadingPhysicalAddress=OperatingSystem_ObtainMainMemory(processSize, PID);
