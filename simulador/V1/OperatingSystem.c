@@ -26,6 +26,11 @@ int OperatingSystem_ExtractFromReadyToRun();
 void OperatingSystem_HandleException();
 void OperatingSystem_HandleSystemCall();
 
+
+//Inicio V1-Ej9
+void  OperatingSystem_PrintReadyToRunQueue();
+//Final V1-Ej9
+
 // The process table
 // PCB processTable[PROCESSTABLEMAXSIZE];
 PCB * processTable;
@@ -301,6 +306,9 @@ void OperatingSystem_MoveToTheREADYState(int PID) {
 	if (Heap_add(PID, readyToRunQueue[ALLPROCESSESQUEUE],QUEUE_PRIORITY ,&(numberOfReadyToRunProcesses[ALLPROCESSESQUEUE]))>=0) {
 		processTable[PID].state=READY;
 	} 
+	//Inicio V1-EJ9-B
+	OperatingSystem_PrintReadyToRunQueue();
+	//Fin V1-EJ9-B
 }
 
 
@@ -457,3 +465,16 @@ void OperatingSystem_InterruptLogic(int entryPoint){
 
 }
 
+//Inicio V1-Ej9
+void  OperatingSystem_PrintReadyToRunQueue(){
+
+	heapItem *queue =readyToRunQueue[0];
+
+	ComputerSystem_DebugMessage(TIMED_MESSAGE,106,SHORTTERMSCHEDULE);
+	ComputerSystem_DebugMessage(NO_TIMED_MESSAGE,107,SHORTTERMSCHEDULE,queue[0].info,processTable[queue[0].info].priority);
+	for(int i=1;i<numberOfReadyToRunProcesses[0];i++){
+		ComputerSystem_DebugMessage(NO_TIMED_MESSAGE,108,SHORTTERMSCHEDULE,queue[i].info,processTable[queue[i].info].priority);
+	}
+	ComputerSystem_DebugMessage(NO_TIMED_MESSAGE,109,SHORTTERMSCHEDULE);
+}
+//Fin V1-EJ10
