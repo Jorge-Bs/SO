@@ -69,6 +69,11 @@ extern int MAINMEMORYSIZE;
 
 int PROCESSTABLEMAXSIZE = 4;
 
+//Inicio V1-EJ10-A
+char * statesNames [5]={"NEW","READY","EXECUTING","BLOCKED","EXIT"};
+//Fin V1-EJ10-A
+
+
 // Initial set of tasks of the OS
 void OperatingSystem_Initialize(int programsFromFileIndex) {
 	
@@ -259,7 +264,11 @@ int OperatingSystem_CreateProcess(int indexOfExecutableProgram) {
 	OperatingSystem_PCBInitialization(PID, loadingPhysicalAddress, processSize, priority, indexOfExecutableProgram);
 	
 	// Show message "Process [PID] created from program [executableName]\n"
-	ComputerSystem_DebugMessage(TIMED_MESSAGE,70,SYSPROC,PID,executableProgram->executableName);
+	//ComputerSystem_DebugMessage(TIMED_MESSAGE,70,SYSPROC,PID,executableProgram->executableName);
+
+	//Inicio V1-EJ10-B
+	ComputerSystem_DebugMessage(TIMED_MESSAGE,111,SYSPROC,PID,statesNames[NEW],executableProgram->executableName);
+	//Fin V1-EJ10-B
 	
 	return PID;
 }
@@ -304,7 +313,11 @@ void OperatingSystem_PCBInitialization(int PID, int initialPhysicalAddress, int 
 void OperatingSystem_MoveToTheREADYState(int PID) {
 	
 	if (Heap_add(PID, readyToRunQueue[ALLPROCESSESQUEUE],QUEUE_PRIORITY ,&(numberOfReadyToRunProcesses[ALLPROCESSESQUEUE]))>=0) {
+		int previous = processTable[PID].state;//V1-EJ10-B
 		processTable[PID].state=READY;
+		//Inicio V1-EJ10-B
+		ComputerSystem_DebugMessage(TIMED_MESSAGE,110,SYSPROC,PID,programList[processTable[PID].programListIndex]->executableName,statesNames[previous],statesNames[READY]);
+		//Fin V1-EJ9-B
 	} 
 	//Inicio V1-EJ9-B
 	OperatingSystem_PrintReadyToRunQueue();
@@ -341,11 +354,18 @@ int OperatingSystem_ExtractFromReadyToRun() {
 void OperatingSystem_Dispatch(int PID) {
 
 	// The process identified by PID becomes the current executing process
-	executingProcessID=PID;
+	executingProcessID=PID;//V1-EJ10-B
+	int previous = processTable[PID].state;
 	// Change the process' state
 	processTable[PID].state=EXECUTING;
+
+
 	// Modify hardware registers with appropriate values for the process identified by PID
 	OperatingSystem_RestoreContext(PID);
+
+	//Inicion V1-EJ10-B
+	ComputerSystem_DebugMessage(TIMED_MESSAGE,110,SYSPROC,PID,programList[processTable[PID].programListIndex]->executableName,statesNames[previous],statesNames[EXECUTING]);
+	//Fin V1-EJ10-B
 }
 
 
@@ -401,7 +421,14 @@ void OperatingSystem_HandleException() {
 // All tasks regarding the removal of the executing process
 void OperatingSystem_TerminateExecutingProcess() {
 
+	int previous=processTable[executingProcessID].state;//V1-EJ10-B
+
 	processTable[executingProcessID].state=EXIT;
+
+	//Inicion V1-EJ10-B
+	ComputerSystem_DebugMessage(TIMED_MESSAGE,110,SYSPROC,executingProcessID,programList[processTable[executingProcessID].programListIndex]->executableName,statesNames[previous],statesNames[EXIT]);
+	//Fin V1-EJ10-B
+
 	
 	if (executingProcessID==sipID) {
 		// finishing sipID, change PC to address of OS HALT instruction
@@ -477,4 +504,4 @@ void  OperatingSystem_PrintReadyToRunQueue(){
 	}
 	ComputerSystem_DebugMessage(NO_TIMED_MESSAGE,109,SHORTTERMSCHEDULE);
 }
-//Fin V1-EJ10
+//Fin V1-EJ9
