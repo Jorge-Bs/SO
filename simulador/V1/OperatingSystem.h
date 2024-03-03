@@ -45,6 +45,12 @@ typedef struct {
 	//Inicio V1-Ej11-B
 	int queueID;
 	//Fin V1-Ej11-B
+	//Inicio V1-EJ13
+	int copyARegister;
+	int copyBRegister;
+	int copyControl;
+	int copyAccumulator;
+	//Fin V1-EJ13
 } PCB;
 
 // These "extern" declaration enables other source code files to gain access

@@ -134,6 +134,12 @@ void OperatingSystem_Initialize(int programsFromFileIndex) {
 		processTable[i].copyOfPCRegister=-1;
 		processTable[i].copyOfPSWRegister=0;
 		processTable[i].programListIndex=-1;
+		//Inicio V1-EJ13
+		processTable[i].copyARegister=0;
+		processTable[i].copyBRegister=0;
+		processTable[i].copyControl=-1;
+		processTable[i].copyAccumulator=0;
+		//Inicio V1-EJ13
 	}
 	// Initialization of the interrupt vector table of the processor
 	Processor_InitializeInterruptVectorTable(OS_address_base+2);
@@ -400,7 +406,12 @@ void OperatingSystem_RestoreContext(int PID) {
 	Processor_PushInSystemStack(processTable[PID].copyOfPCRegister);
 	Processor_PushInSystemStack(processTable[PID].copyOfPSWRegister);
 	Processor_SetRegisterSP(processTable[PID].copyOfSPRegister);
-
+	//Inicio V1-EJ13
+	Processor_SetRegisterA(processTable[PID].copyARegister);
+	Processor_SetRegisterB(processTable[PID].copyBRegister);
+	Processor_SetAccumulator(processTable[PID].copyAccumulator);
+	Processor_SetCTRL(processTable[PID].copyControl);
+	//Fin V1-EJ13
 	// Same thing for the MMU registers
 	MMU_SetBase(processTable[PID].initialPhysicalAddress);
 	MMU_SetLimit(processTable[PID].processSize);
@@ -430,6 +441,13 @@ void OperatingSystem_SaveContext(int PID) {
 	
 	// Save RegisterSP 
 	processTable[PID].copyOfSPRegister=Processor_GetRegisterSP();
+
+	//Inicio V1-EJ13
+	processTable[PID].copyARegister=Processor_GetRegisterA();
+	processTable[PID].copyBRegister=Processor_GetRegisterB();
+	processTable[PID].copyAccumulator=Processor_GetAccumulator();
+	processTable[PID].copyControl=Processor_GetCTRL();
+	//Fin V1-EJ13
 }
 
 
