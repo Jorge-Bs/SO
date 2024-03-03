@@ -17,3 +17,5 @@
 113,Ready-to-run processes queues:
 114,\t\t%s: [@G%d@@,%d]
 115,\t\t%s:\n
+116, Process [@G%d - %s@@] will transfer the control of the processor to process [@G%d - %s@@]\n
+117, Process [@G%d - %s@@] cannot transfer the control of the processor to any process\n 

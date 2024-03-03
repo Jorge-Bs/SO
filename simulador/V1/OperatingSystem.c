@@ -500,6 +500,21 @@ void OperatingSystem_HandleSystemCall() {
 			ComputerSystem_DebugMessage(TIMED_MESSAGE,73,SYSPROC,executingProcessID,programList[processTable[executingProcessID].programListIndex]->executableName);
 			OperatingSystem_TerminateExecutingProcess();
 			break;
+		//Inicio V1-Ej12
+		case SYSCALL_YIELD:
+			int queueId = processTable[executingProcessID].queueID;
+			int firstElementPriority = processTable[readyToRunQueue[queueId][0].info].priority;
+			int firstElementPID= readyToRunQueue[queueId][0].info;
+			if(processTable[executingProcessID].priority==firstElementPriority && executingProcessID!=firstElementPID){
+				OperatingSystem_SaveContext(executingProcessID);
+				ComputerSystem_DebugMessage(TIMED_MESSAGE,116,SHORTTERMSCHEDULE,executingProcessID,programList[processTable[executingProcessID].programListIndex]->executableName,readyToRunQueue[queueId][0].info,programList[processTable[firstElementPID].programListIndex]->executableName);
+				OperatingSystem_MoveToTheREADYState(executingProcessID);
+				OperatingSystem_Dispatch(OperatingSystem_ExtractFromReadyToRun());
+			}else{
+				ComputerSystem_DebugMessage(TIMED_MESSAGE,117,SHORTTERMSCHEDULE,executingProcessID,programList[processTable[executingProcessID].programListIndex]->executableName);
+			}
+			break;
+		//Fin V1-Ej12
 	}
 }
 	
