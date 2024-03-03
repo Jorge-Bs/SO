@@ -55,8 +55,13 @@ int initialPID=-1;
 
 // Array that contains the identifiers of the READY processes
 // heapItem readyToRunQueue[NUMBEROFQUEUES][PROCESSTABLEMAXSIZE];
+
 heapItem *readyToRunQueue[NUMBEROFQUEUES];
-int numberOfReadyToRunProcesses[NUMBEROFQUEUES]={0};
+//int numberOfReadyToRunProcesses[NUMBEROFQUEUES]={0};
+//Incicio V1-Ej11-A
+int numberOfReadyToRunProcesses[NUMBEROFQUEUES]={0,0}; 
+char * queueNames [NUMBEROFQUEUES]={"USER","DAEMONS"}; 
+//Fin V1-Ej11-A
 
 // Variable containing the number of not terminated user processes
 int numberOfNotTerminatedUserProcesses=0;
@@ -97,7 +102,12 @@ void OperatingSystem_Initialize(int programsFromFileIndex) {
 	processTable = (PCB *) malloc(PROCESSTABLEMAXSIZE*sizeof(PCB));
 	
 	// Space for the ready to run queues (one queue initially...)
-	readyToRunQueue[ALLPROCESSESQUEUE] = Heap_create(PROCESSTABLEMAXSIZE);
+	//readyToRunQueue[ALLPROCESSESQUEUE] = Heap_create(PROCESSTABLEMAXSIZE);
+
+	//Inicio V1-Ej11-B
+	readyToRunQueue[USERPROCESSQUEUE] = Heap_create(PROCESSTABLEMAXSIZE);
+	readyToRunQueue[DAEMONSQUEUE] = Heap_create(PROCESSTABLEMAXSIZE);
+	//Fin V1-Ej11-B
 
 	programFile=fopen("OperatingSystemCode", "r");
 	if (programFile==NULL){
@@ -295,10 +305,17 @@ void OperatingSystem_PCBInitialization(int PID, int initialPhysicalAddress, int 
 	processTable[PID].state=NEW;
 	processTable[PID].priority=priority;
 	processTable[PID].programListIndex=processPLIndex;
+
+	//Inicio V1-EJ11-C
+	processTable[PID].queueID=USERPROCESSQUEUE;
+	//Fin V1-Ej11-C
 	// Daemons run in protected mode and MMU use real address
 	if (programList[processPLIndex]->type == DAEMONPROGRAM) {
 		processTable[PID].copyOfPCRegister=initialPhysicalAddress;
 		processTable[PID].copyOfPSWRegister= ((unsigned int) 1) << EXECUTION_MODE_BIT;
+		//Inicio V1-EJ11-C
+		processTable[PID].queueID=DAEMONSQUEUE;
+		//Fin V1-Ej11-C
 	} 
 	else {
 		processTable[PID].copyOfPCRegister=0;
@@ -312,13 +329,14 @@ void OperatingSystem_PCBInitialization(int PID, int initialPhysicalAddress, int 
 // a queue of identifiers of READY processes
 void OperatingSystem_MoveToTheREADYState(int PID) {
 	
-	if (Heap_add(PID, readyToRunQueue[ALLPROCESSESQUEUE],QUEUE_PRIORITY ,&(numberOfReadyToRunProcesses[ALLPROCESSESQUEUE]))>=0) {
+	//Anterior ALLPROCESSESQUEUE Ahora processTable[PID].queueID Ejercicio V1-11-C
+	if (Heap_add(PID, readyToRunQueue[processTable[PID].queueID],QUEUE_PRIORITY ,&(numberOfReadyToRunProcesses[processTable[PID].queueID]))>=0) {
 		int previous = processTable[PID].state;//V1-EJ10-B
 		processTable[PID].state=READY;
 		//Inicio V1-EJ10-B
 		ComputerSystem_DebugMessage(TIMED_MESSAGE,110,SYSPROC,PID,programList[processTable[PID].programListIndex]->executableName,statesNames[previous],statesNames[READY]);
 		//Fin V1-EJ9-B
-	} 
+	}
 	//Inicio V1-EJ9-B
 	OperatingSystem_PrintReadyToRunQueue();
 	//Fin V1-EJ9-B
@@ -343,8 +361,14 @@ int OperatingSystem_ExtractFromReadyToRun() {
   
 	int selectedProcess=NOPROCESS;
 
-	selectedProcess=Heap_poll(readyToRunQueue[ALLPROCESSESQUEUE],QUEUE_PRIORITY ,&(numberOfReadyToRunProcesses[ALLPROCESSESQUEUE]));
-	
+	//selectedProcess=Heap_poll(readyToRunQueue[ALLPROCESSESQUEUE],QUEUE_PRIORITY ,&(numberOfReadyToRunProcesses[ALLPROCESSESQUEUE]));
+	//Inicio V1-Ej11-C
+	selectedProcess=Heap_poll(readyToRunQueue[USERPROCESSQUEUE],QUEUE_PRIORITY ,&(numberOfReadyToRunProcesses[USERPROCESSQUEUE]));
+	if(selectedProcess==NOPROCESS){
+		selectedProcess=Heap_poll(readyToRunQueue[DAEMONSQUEUE],QUEUE_PRIORITY ,&(numberOfReadyToRunProcesses[DAEMONSQUEUE]));
+	}
+	//Fin V1-Ej11-C
+
 	// Return most priority process or NOPROCESS if empty queue
 	return selectedProcess; 
 }
@@ -492,16 +516,44 @@ void OperatingSystem_InterruptLogic(int entryPoint){
 
 }
 
-//Inicio V1-Ej9
-void  OperatingSystem_PrintReadyToRunQueue(){
 
+void  OperatingSystem_PrintReadyToRunQueue(){
+	//Inicio V1-Ej9
 	heapItem *queue =readyToRunQueue[0];
 
-	ComputerSystem_DebugMessage(TIMED_MESSAGE,106,SHORTTERMSCHEDULE);
-	ComputerSystem_DebugMessage(NO_TIMED_MESSAGE,107,SHORTTERMSCHEDULE,queue[0].info,processTable[queue[0].info].priority);
-	for(int i=1;i<numberOfReadyToRunProcesses[0];i++){
-		ComputerSystem_DebugMessage(NO_TIMED_MESSAGE,108,SHORTTERMSCHEDULE,queue[i].info,processTable[queue[i].info].priority);
+	//ComputerSystem_DebugMessage(TIMED_MESSAGE,106,SHORTTERMSCHEDULE);
+	//ComputerSystem_DebugMessage(NO_TIMED_MESSAGE,107,SHORTTERMSCHEDULE,queue[0].info,processTable[queue[0].info].priority);
+	//for(int i=1;i<numberOfReadyToRunProcesses[0];i++){
+	//	ComputerSystem_DebugMessage(NO_TIMED_MESSAGE,108,SHORTTERMSCHEDULE,queue[i].info,processTable[queue[i].info].priority);
+	//}
+	//ComputerSystem_DebugMessage(NO_TIMED_MESSAGE,109,SHORTTERMSCHEDULE);
+	//Fin V1-EJ9
+
+	//Inicio V1-Ej11-B
+	heapItem *userQueue=queue;
+	heapItem *daemonQueue=readyToRunQueue[DAEMONSQUEUE];
+
+
+	if(numberOfReadyToRunProcesses[USERPROCESSQUEUE]>0){
+		ComputerSystem_DebugMessage(TIMED_MESSAGE,114,SHORTTERMSCHEDULE,queueNames[USERPROCESSQUEUE],userQueue[0].info,processTable[userQueue[0].info].priority);
+		for(int i=1;i<numberOfReadyToRunProcesses[USERPROCESSQUEUE];i++){
+			ComputerSystem_DebugMessage(NO_TIMED_MESSAGE,108,SHORTTERMSCHEDULE,userQueue[i].info,processTable[userQueue[i].info].priority);
+		}
+		ComputerSystem_DebugMessage(NO_TIMED_MESSAGE,109,SHORTTERMSCHEDULE);
+	}else{
+		ComputerSystem_DebugMessage(TIMED_MESSAGE,115,SHORTTERMSCHEDULE,queueNames[USERPROCESSQUEUE]);
 	}
-	ComputerSystem_DebugMessage(NO_TIMED_MESSAGE,109,SHORTTERMSCHEDULE);
+
+	if(numberOfReadyToRunProcesses[DAEMONSQUEUE]>0){
+		ComputerSystem_DebugMessage(TIMED_MESSAGE,114,SHORTTERMSCHEDULE,queueNames[DAEMONSQUEUE],daemonQueue[0].info,processTable[daemonQueue[0].info].priority);
+		for(int i=1;i<numberOfReadyToRunProcesses[DAEMONSQUEUE];i++){
+			ComputerSystem_DebugMessage(NO_TIMED_MESSAGE,108,SHORTTERMSCHEDULE,daemonQueue[i].info,processTable[daemonQueue[i].info].priority);
+		}
+		ComputerSystem_DebugMessage(NO_TIMED_MESSAGE,109,SHORTTERMSCHEDULE);
+	}else{
+		ComputerSystem_DebugMessage(TIMED_MESSAGE,115,SHORTTERMSCHEDULE,queueNames[DAEMONSQUEUE]);
+	}
+
+	//Fin V1-Ej11-B
 }
-//Fin V1-EJ9
+

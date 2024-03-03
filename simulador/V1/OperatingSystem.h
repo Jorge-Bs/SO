@@ -15,8 +15,12 @@
 #define NOPROCESS -1
 
 // Number of queues of ready to run processes, initially one queue...
-#define NUMBEROFQUEUES 1
-enum TypeOfReadyToRunProcessQueues { ALLPROCESSESQUEUE }; 
+//#define NUMBEROFQUEUES 1
+//enum TypeOfReadyToRunProcessQueues { ALLPROCESSESQUEUE }; 
+//Inicio V1-Ej11-A
+#define NUMBEROFQUEUES 2 
+enum TypeOfReadyToRunProcessQueues { USERPROCESSQUEUE, DAEMONSQUEUE};
+//Fin V1-Ej-A
 
 // Contains the possible type of programs
 enum ProgramTypes { USERPROGRAM=100, DAEMONPROGRAM }; 
@@ -38,6 +42,9 @@ typedef struct {
 	int copyOfPCRegister;
 	unsigned int copyOfPSWRegister;
 	int programListIndex;
+	//Inicio V1-Ej11-B
+	int queueID;
+	//Fin V1-Ej11-B
 } PCB;
 
 // These "extern" declaration enables other source code files to gain access
