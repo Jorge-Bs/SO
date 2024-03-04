@@ -11,6 +11,10 @@
 // Internals Functions prototypes
 void Processor_ManageInterrupts();
 
+//Inicio V1-EJ15
+int Processor_PrivilegedMode();
+//Fin V1-EJ15
+
 // External data
 extern char *InstructionNames[];
 
@@ -227,26 +231,43 @@ void Processor_DecodeAndExecuteInstruction() {
 
 		// Instruction HALT
 		case HALT_INST: 
-			Processor_ActivatePSW_Bit(POWEROFF_BIT);
+			//Inicio V1-EJ15
+			if(Processor_PrivilegedMode()==1){
+				Processor_ActivatePSW_Bit(POWEROFF_BIT);
+			}else{
+				Processor_RaiseInterrupt(EXCEPTION_BIT);
+			}
+			//Fin V1-EJ15
 			break;
 			  
 		// Instruction OS
 		case OS_INST: // Make a operating system routine in entry point indicated by operand1
-			// Show final part of HARDWARE message with CPU registers
-			// Show message: " (PC: registerPC_CPU, Accumulator: registerAccumulator_CPU, PSW: registerPSW_CPU [Processor_ShowPSW()]\n
-			ComputerSystem_DebugMessage(NO_TIMED_MESSAGE,69, HARDWARE, InstructionNames[operationCode],operand1,operand2,OperatingSystem_GetExecutingProcessID(),registerPC_CPU,registerAccumulator_CPU,registerPSW_CPU,Processor_ShowPSW());
+			//Inicio V1-EJ15
+			if(Processor_PrivilegedMode()==1){
+				// Show final part of HARDWARE message with CPU registers
+				// Show message: " (PC: registerPC_CPU, Accumulator: registerAccumulator_CPU, PSW: registerPSW_CPU [Processor_ShowPSW()]\n
+				ComputerSystem_DebugMessage(NO_TIMED_MESSAGE,69, HARDWARE, InstructionNames[operationCode],operand1,operand2,OperatingSystem_GetExecutingProcessID(),registerPC_CPU,registerAccumulator_CPU,registerPSW_CPU,Processor_ShowPSW());
 
-			// Not all operating system code is executed in simulated processor, but really must do it... 
-			OperatingSystem_InterruptLogic(operand1);
-			registerPC_CPU++;
-			// Update PSW bits (ZERO_BIT, NEGATIVE_BIT, ...)
-			Processor_UpdatePSW();
+				// Not all operating system code is executed in simulated processor, but really must do it... 
+				OperatingSystem_InterruptLogic(operand1);
+				registerPC_CPU++;
+				// Update PSW bits (ZERO_BIT, NEGATIVE_BIT, ...)
+				Processor_UpdatePSW();
+			}else{
+				Processor_RaiseInterrupt(EXCEPTION_BIT);
+			}
+			//Fin V1-EJ15
 			return; // Note: message show before... for operating system messages after...
 
 		// Instruction IRET
 		case IRET_INST: // Return from a interrupt handle manager call
-			registerPSW_CPU=Processor_PopFromSystemStack();
-			registerPC_CPU=Processor_PopFromSystemStack();
+			//Inicio V1-EJ15
+			if(Processor_PrivilegedMode()==1){
+				registerPSW_CPU=Processor_PopFromSystemStack();
+				registerPC_CPU=Processor_PopFromSystemStack();
+			}else{
+				Processor_RaiseInterrupt(EXCEPTION_BIT);
+			}//Fin V1-EJ15
 			break;		
 
 		case MOV_INST: // Copy data between processor registers
@@ -364,3 +385,10 @@ char * Processor_ShowPSW(){
 
 /////////////////////////////////////////////////////////
 //  New functions below this line  //////////////////////
+
+//Inicio V1-Ej15
+//If the protected mode is enable, this function will return the value1 , in other case 0
+int Processor_PrivilegedMode(){
+	return Processor_PSW_BitState(EXECUTION_MODE_BIT);
+}
+//Fin V1-Ej15
