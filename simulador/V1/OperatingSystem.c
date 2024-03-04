@@ -161,6 +161,12 @@ void OperatingSystem_Initialize(int programsFromFileIndex) {
 	// Select the first process that is going to use the processor
 	selectedProcess=OperatingSystem_ShortTermScheduler();
 
+	//Inicio V1-Ej14// numberOfNotTerminatedUserProcesses==0 // programList[processTable[selectedProcess].programListIndex]->type==DAEMONPROGRAM
+	if(numberOfReadyToRunProcesses[USERPROCESSQUEUE]==0){
+		OperatingSystem_ReadyToShutdown();
+	}
+	//Fin V1-Ej14
+
 	Processor_SetSSP(MAINMEMORYSIZE-1);
 
 	// Assign the processor to the selected process
