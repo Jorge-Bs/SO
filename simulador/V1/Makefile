@@ -63,4 +63,4 @@ Wrappers.o: Wrappers.c Wrappers.h Clock.h Asserts.h
 	$(CC) $(STDCFLAGS) $(INCLUDES) Wrappers.c
 
 clean:
-	rm -f $(PROGRAM) *.o *~ *.d core
+	rm -f $(PROGRAM) *.o *~ *.d core *:Zone*

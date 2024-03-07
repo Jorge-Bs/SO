@@ -509,6 +509,9 @@ void OperatingSystem_TerminateExecutingProcess() {
 void OperatingSystem_HandleSystemCall() {
   
 	int systemCallID;
+	int queueId;
+	int firstElementPriority;
+	int firstElementPID;
 
 	// Register A contains the identifier of the issued system call
 	systemCallID=Processor_GetRegisterC();
@@ -526,9 +529,9 @@ void OperatingSystem_HandleSystemCall() {
 			break;
 		//Inicio V1-Ej12
 		case SYSCALL_YIELD:
-			int queueId = processTable[executingProcessID].queueID;
-			int firstElementPriority = processTable[readyToRunQueue[queueId][0].info].priority;
-			int firstElementPID= readyToRunQueue[queueId][0].info;
+			queueId = processTable[executingProcessID].queueID;
+			firstElementPriority = processTable[readyToRunQueue[queueId][0].info].priority;
+			firstElementPID= readyToRunQueue[queueId][0].info;
 			if(processTable[executingProcessID].priority==firstElementPriority && executingProcessID!=firstElementPID){
 				OperatingSystem_SaveContext(executingProcessID);
 				ComputerSystem_DebugMessage(TIMED_MESSAGE,116,SHORTTERMSCHEDULE,executingProcessID,programList[processTable[executingProcessID].programListIndex]->executableName,readyToRunQueue[queueId][0].info,programList[processTable[firstElementPID].programListIndex]->executableName);
@@ -574,23 +577,23 @@ void  OperatingSystem_PrintReadyToRunQueue(){
 
 
 	if(numberOfReadyToRunProcesses[USERPROCESSQUEUE]>0){
-		ComputerSystem_DebugMessage(TIMED_MESSAGE,114,SHORTTERMSCHEDULE,queueNames[USERPROCESSQUEUE],userQueue[0].info,processTable[userQueue[0].info].priority);
+		ComputerSystem_DebugMessage(NO_TIMED_MESSAGE,114,SHORTTERMSCHEDULE,queueNames[USERPROCESSQUEUE],userQueue[0].info,processTable[userQueue[0].info].priority);
 		for(int i=1;i<numberOfReadyToRunProcesses[USERPROCESSQUEUE];i++){
 			ComputerSystem_DebugMessage(NO_TIMED_MESSAGE,108,SHORTTERMSCHEDULE,userQueue[i].info,processTable[userQueue[i].info].priority);
 		}
 		ComputerSystem_DebugMessage(NO_TIMED_MESSAGE,109,SHORTTERMSCHEDULE);
 	}else{
-		ComputerSystem_DebugMessage(TIMED_MESSAGE,115,SHORTTERMSCHEDULE,queueNames[USERPROCESSQUEUE]);
+		ComputerSystem_DebugMessage(NO_TIMED_MESSAGE,115,SHORTTERMSCHEDULE,queueNames[USERPROCESSQUEUE]);
 	}
 
 	if(numberOfReadyToRunProcesses[DAEMONSQUEUE]>0){
-		ComputerSystem_DebugMessage(TIMED_MESSAGE,114,SHORTTERMSCHEDULE,queueNames[DAEMONSQUEUE],daemonQueue[0].info,processTable[daemonQueue[0].info].priority);
+		ComputerSystem_DebugMessage(NO_TIMED_MESSAGE,114,SHORTTERMSCHEDULE,queueNames[DAEMONSQUEUE],daemonQueue[0].info,processTable[daemonQueue[0].info].priority);
 		for(int i=1;i<numberOfReadyToRunProcesses[DAEMONSQUEUE];i++){
 			ComputerSystem_DebugMessage(NO_TIMED_MESSAGE,108,SHORTTERMSCHEDULE,daemonQueue[i].info,processTable[daemonQueue[i].info].priority);
 		}
 		ComputerSystem_DebugMessage(NO_TIMED_MESSAGE,109,SHORTTERMSCHEDULE);
 	}else{
-		ComputerSystem_DebugMessage(TIMED_MESSAGE,115,SHORTTERMSCHEDULE,queueNames[DAEMONSQUEUE]);
+		ComputerSystem_DebugMessage(NO_TIMED_MESSAGE,115,SHORTTERMSCHEDULE,queueNames[DAEMONSQUEUE]);
 	}
 
 	//Fin V1-Ej11-B

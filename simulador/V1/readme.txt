@@ -1,2 +1,6 @@
-Se ha completado los 15 ejercicios, los ejercicios que involucran cambiar o modificar ejercicios anteriores,
-tiene el código de este comentado, como es el caso del ejecicio 9 el cual es modificado por el ejecicio 11
+El ejercicio 9 esta comentado
+
+Preguntas del los ejecicios
+6
+La funcion OperatingSystem_ObtainMainMemory, devuelve TOOBIGPROCESS cuando se pide mas memoria que la que existe en el sistema,
+si no se captura este error es cuando se da el segmentation fault
