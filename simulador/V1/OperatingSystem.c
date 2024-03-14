@@ -561,7 +561,7 @@ void OperatingSystem_InterruptLogic(int entryPoint){
 
 void  OperatingSystem_PrintReadyToRunQueue(){
 	//Inicio V1-Ej9
-	heapItem *queue =readyToRunQueue[0];
+	//heapItem *queue =readyToRunQueue[0];
 
 	//ComputerSystem_DebugMessage(TIMED_MESSAGE,106,SHORTTERMSCHEDULE);
 	//ComputerSystem_DebugMessage(NO_TIMED_MESSAGE,107,SHORTTERMSCHEDULE,queue[0].info,processTable[queue[0].info].priority);
@@ -572,6 +572,7 @@ void  OperatingSystem_PrintReadyToRunQueue(){
 	//Fin V1-EJ9
 
 	//Inicio V1-Ej11-B
+	/*
 	heapItem *userQueue=queue;
 	heapItem *daemonQueue=readyToRunQueue[DAEMONSQUEUE];
 
@@ -594,6 +595,19 @@ void  OperatingSystem_PrintReadyToRunQueue(){
 		ComputerSystem_DebugMessage(NO_TIMED_MESSAGE,109,SHORTTERMSCHEDULE);
 	}else{
 		ComputerSystem_DebugMessage(NO_TIMED_MESSAGE,115,SHORTTERMSCHEDULE,queueNames[DAEMONSQUEUE]);
+	}*/
+
+	
+	for(int queue=0;queue<NUMBEROFQUEUES;queue++){
+		if(numberOfReadyToRunProcesses[queue]>0){
+			ComputerSystem_DebugMessage(NO_TIMED_MESSAGE,114,SHORTTERMSCHEDULE,queueNames[queue],readyToRunQueue[queue][0].info,processTable[readyToRunQueue[queue][0].info].priority);
+		for(int process=1;process<numberOfReadyToRunProcesses[queue];process++){
+			ComputerSystem_DebugMessage(NO_TIMED_MESSAGE,108,SHORTTERMSCHEDULE,readyToRunQueue[queue][process].info,processTable[readyToRunQueue[queue][process].info].priority);
+		}
+		ComputerSystem_DebugMessage(NO_TIMED_MESSAGE,109,SHORTTERMSCHEDULE);
+	}else{
+		ComputerSystem_DebugMessage(NO_TIMED_MESSAGE,115,SHORTTERMSCHEDULE,queueNames[queue]);
+	}
 	}
 
 	//Fin V1-Ej11-B
