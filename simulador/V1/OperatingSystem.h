@@ -48,7 +48,7 @@ typedef struct {
 	//Inicio V1-EJ13
 	int copyARegister;
 	int copyBRegister;
-	int copyControl;
+	//int copyControl;
 	int copyAccumulator;
 	//Fin V1-EJ13
 } PCB;

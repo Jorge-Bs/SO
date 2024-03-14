@@ -137,7 +137,7 @@ void OperatingSystem_Initialize(int programsFromFileIndex) {
 		//Inicio V1-EJ13
 		processTable[i].copyARegister=0;
 		processTable[i].copyBRegister=0;
-		processTable[i].copyControl=-1;
+		//processTable[i].copyControl=-1;
 		processTable[i].copyAccumulator=0;
 		//Inicio V1-EJ13
 	}
@@ -416,7 +416,7 @@ void OperatingSystem_RestoreContext(int PID) {
 	Processor_SetRegisterA(processTable[PID].copyARegister);
 	Processor_SetRegisterB(processTable[PID].copyBRegister);
 	Processor_SetAccumulator(processTable[PID].copyAccumulator);
-	Processor_SetCTRL(processTable[PID].copyControl);
+	//Processor_SetCTRL(processTable[PID].copyControl);
 	//Fin V1-EJ13
 	// Same thing for the MMU registers
 	MMU_SetBase(processTable[PID].initialPhysicalAddress);
@@ -452,7 +452,7 @@ void OperatingSystem_SaveContext(int PID) {
 	processTable[PID].copyARegister=Processor_GetRegisterA();
 	processTable[PID].copyBRegister=Processor_GetRegisterB();
 	processTable[PID].copyAccumulator=Processor_GetAccumulator();
-	processTable[PID].copyControl=Processor_GetCTRL();
+	//processTable[PID].copyControl=Processor_GetCTRL();
 	//Fin V1-EJ13
 }
 
