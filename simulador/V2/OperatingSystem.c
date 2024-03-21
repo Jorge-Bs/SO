@@ -25,7 +25,9 @@ int OperatingSystem_ShortTermScheduler();
 int OperatingSystem_ExtractFromReadyToRun();
 void OperatingSystem_HandleException();
 void OperatingSystem_HandleSystemCall();
-
+//Inicio v2-Ej1-B
+void OperatingSystem_HandleClockInterrupt();
+//Fin v2-Ej1-B
 
 //Inicio V1-Ej9
 void  OperatingSystem_PrintReadyToRunQueue();
@@ -77,6 +79,10 @@ int PROCESSTABLEMAXSIZE = 4;
 //Inicio V1-EJ10-A
 char * statesNames [5]={"NEW","READY","EXECUTING","BLOCKED","EXIT"};
 //Fin V1-EJ10-A
+
+//Inicio V2-EJ1-e
+int numberOfClockInterrupts=0;
+//Fin V2-EJ1-e
 
 
 // Initial set of tasks of the OS
@@ -554,6 +560,11 @@ void OperatingSystem_InterruptLogic(int entryPoint){
 		case EXCEPTION_BIT: // EXCEPTION_BIT=6
 			OperatingSystem_HandleException();
 			break;
+		//Inicio V2-Ej1-c
+		case CLOCKINT_BIT:
+			OperatingSystem_HandleClockInterrupt();
+			break;
+		//Fin V2-Ej1-C
 	}
 
 }
@@ -613,3 +624,9 @@ void  OperatingSystem_PrintReadyToRunQueue(){
 	//Fin V1-Ej11-B
 }
 
+//Inicio v2-Ej1-B y e
+void OperatingSystem_HandleClockInterrupt(){ 
+	numberOfClockInterrupts++;
+	ComputerSystem_DebugMessage(TIMED_MESSAGE,120,INTERRUPT,numberOfClockInterrupts);
+} 
+//Fin v2-Ej1-B y e

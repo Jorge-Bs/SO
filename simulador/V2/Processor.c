@@ -50,6 +50,9 @@ void Processor_InitializeInterruptVectorTable(int interruptVectorInitialAddress)
 
 	interruptVectorTable[SYSCALL_BIT]=interruptVectorInitialAddress;  // SYSCALL_BIT=2
 	interruptVectorTable[EXCEPTION_BIT]=interruptVectorInitialAddress+2; // EXCEPTION_BIT=6
+	//Inicio V2-Ej1-C
+	interruptVectorTable[CLOCKINT_BIT]=interruptVectorInitialAddress+4;
+	//FIn V2-Ej1-C
 }
 
 // Fetch an instruction from main memory and put it in the IR register
