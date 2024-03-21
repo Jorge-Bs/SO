@@ -181,6 +181,10 @@ void OperatingSystem_Initialize(int programsFromFileIndex) {
 	// Initial operation for Operating System
 	Processor_SetPC(OS_address_base);
 
+
+	//Inicio V2-Ej3-a
+	OperatingSystem_PrintStatus();
+	//Fin v2-ej3-a
 }
 
 // The LTS is responsible of the admission of new processes in the system.
@@ -224,6 +228,12 @@ int OperatingSystem_LongTermScheduler() {
 			OperatingSystem_MoveToTheREADYState(PID);
 		}
 	}
+
+	//Inicio V2-Ej3-e
+	if(numberOfSuccessfullyCreatedProcesses>0){
+		OperatingSystem_PrintStatus();
+	}
+	//Fin v2-ej3-e
 
 	// Return the number of succesfully created processes
 	return numberOfSuccessfullyCreatedProcesses;
@@ -356,7 +366,7 @@ void OperatingSystem_MoveToTheREADYState(int PID) {
 		//Fin V1-EJ9-B
 	}
 	//Inicio V1-EJ9-B
-	OperatingSystem_PrintReadyToRunQueue();
+	//OperatingSystem_PrintReadyToRunQueue();//Ejercicio v2-4 comentar
 	//Fin V1-EJ9-B
 }
 
@@ -470,6 +480,10 @@ void OperatingSystem_HandleException() {
 	ComputerSystem_DebugMessage(TIMED_MESSAGE,71,INTERRUPT,executingProcessID,programList[processTable[executingProcessID].programListIndex]->executableName);
 	
 	OperatingSystem_TerminateExecutingProcess();
+
+	//Inicio v2-Ej3-d
+	OperatingSystem_PrintStatus();
+	//Fin v2-Ej3-d
 }
 
 // All tasks regarding the removal of the executing process
@@ -532,6 +546,9 @@ void OperatingSystem_HandleSystemCall() {
 			// Show message: "Process [executingProcessID] has requested to terminate\n"
 			ComputerSystem_DebugMessage(TIMED_MESSAGE,73,SYSPROC,executingProcessID,programList[processTable[executingProcessID].programListIndex]->executableName);
 			OperatingSystem_TerminateExecutingProcess();
+			//inicio V2-Ej3-b
+			OperatingSystem_PrintStatus();
+			//Fin V2-Ej3-b
 			break;
 		//Inicio V1-Ej12
 		case SYSCALL_YIELD:
@@ -543,6 +560,10 @@ void OperatingSystem_HandleSystemCall() {
 				ComputerSystem_DebugMessage(TIMED_MESSAGE,116,SHORTTERMSCHEDULE,executingProcessID,programList[processTable[executingProcessID].programListIndex]->executableName,readyToRunQueue[queueId][0].info,programList[processTable[firstElementPID].programListIndex]->executableName);
 				OperatingSystem_MoveToTheREADYState(executingProcessID);
 				OperatingSystem_Dispatch(OperatingSystem_ExtractFromReadyToRun());
+
+				//inicio V2-Ej3-b
+				OperatingSystem_PrintStatus();
+				//Fin V2-Ej3-b
 			}else{
 				ComputerSystem_DebugMessage(TIMED_MESSAGE,117,SHORTTERMSCHEDULE,executingProcessID,programList[processTable[executingProcessID].programListIndex]->executableName);
 			}

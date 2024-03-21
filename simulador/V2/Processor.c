@@ -352,6 +352,11 @@ void Processor_DecodeAndExecuteInstruction() {
 void Processor_ManageInterrupts() {
   
 	int i;
+		//Inicio v2-Ej2-c
+		if(Processor_PSW_BitState(INTERRUPT_MASKED_BIT)){
+			return;
+		}
+		//Fin v2-Ej2-c
 
 		for (i=0;i<INTERRUPTTYPES;i++)
 			// If an 'i'-type interrupt is pending
@@ -360,7 +365,10 @@ void Processor_ManageInterrupts() {
 				Processor_ACKInterrupt(i);
 				// Copy PC and PSW registers in the system stack
 				Processor_PushInSystemStack(registerPC_CPU);
-				Processor_PushInSystemStack(registerPSW_CPU);	
+				Processor_PushInSystemStack(registerPSW_CPU);
+				//Inicio v2-Ej2-d
+				Processor_SetPSW(INTERRUPT_MASKED_BIT);
+				//Fin v2-Ej2-d
 				// Activate protected excution mode
 				Processor_ActivatePSW_Bit(EXECUTION_MODE_BIT);
 				// Call the appropriate OS interrupt-handling routine setting PC register
@@ -382,6 +390,10 @@ char * Processor_ShowPSW(){
 		pswmask[tam-ZERO_BIT]='Z';
 	if (Processor_PSW_BitState(POWEROFF_BIT))
 		pswmask[tam-POWEROFF_BIT]='S';
+	//Inicio V2-Ej2-B
+	if (Processor_PSW_BitState(INTERRUPT_MASKED_BIT))
+		pswmask[tam-INTERRUPT_MASKED_BIT]='M';
+	//Fin V2-Ej2-B
 	return pswmask;
 }
 

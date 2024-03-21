@@ -7,11 +7,11 @@ int tics=0;
 
 void Clock_Update() {
 	tics++;
-	//Inicio V2-Ej-D
+	//Inicio V2-Ej1-D
 	if((tics%intervalBetweenInterrupts)==0){
 		Processor_RaiseInterrupt(CLOCKINT_BIT);
 	}
-	//Fin V2-Ej-D
+	//Fin V2-Ej1-D
 }
 
 
