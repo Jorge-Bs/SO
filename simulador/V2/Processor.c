@@ -367,7 +367,7 @@ void Processor_ManageInterrupts() {
 				Processor_PushInSystemStack(registerPC_CPU);
 				Processor_PushInSystemStack(registerPSW_CPU);
 				//Inicio v2-Ej2-d
-				Processor_SetPSW(INTERRUPT_MASKED_BIT);
+				Processor_ActivatePSW_Bit(INTERRUPT_MASKED_BIT);
 				//Fin v2-Ej2-d
 				// Activate protected excution mode
 				Processor_ActivatePSW_Bit(EXECUTION_MODE_BIT);
