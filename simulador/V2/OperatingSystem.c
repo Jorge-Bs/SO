@@ -25,9 +25,16 @@ int OperatingSystem_ShortTermScheduler();
 int OperatingSystem_ExtractFromReadyToRun();
 void OperatingSystem_HandleException();
 void OperatingSystem_HandleSystemCall();
+void SleepingProcessesQueue();//v2-ej5
+void OperatingSystem_MoveToTheBlockState(int);//v2-ej5
 //Inicio v2-Ej1-B
 void OperatingSystem_HandleClockInterrupt();
 //Fin v2-Ej1-B
+
+void CheckPriority();//Ejercicio v2-ej6-c
+
+
+int OperatingSystem_ExtractFromBlockedToRun();//v2-ej6
 
 //Inicio V1-Ej9
 void  OperatingSystem_PrintReadyToRunQueue();
@@ -84,6 +91,10 @@ char * statesNames [5]={"NEW","READY","EXECUTING","BLOCKED","EXIT"};
 int numberOfClockInterrupts=0;
 //Fin V2-EJ1-e
 
+//Inicio V2-Ej5-b
+heapItem *sleepingProcessesQueue;
+int numberOfSleepingProcesses=0;
+//Fin V2-Ej5-b
 
 // Initial set of tasks of the OS
 void OperatingSystem_Initialize(int programsFromFileIndex) {
@@ -114,6 +125,10 @@ void OperatingSystem_Initialize(int programsFromFileIndex) {
 	readyToRunQueue[USERPROCESSQUEUE] = Heap_create(PROCESSTABLEMAXSIZE);
 	readyToRunQueue[DAEMONSQUEUE] = Heap_create(PROCESSTABLEMAXSIZE);
 	//Fin V1-Ej11-B
+
+	//Inicio V2-Ej5-b
+	sleepingProcessesQueue = Heap_create(PROCESSTABLEMAXSIZE);
+	//fin V2-Ej5-b
 
 	programFile=fopen("OperatingSystemCode", "r");
 	if (programFile==NULL){
@@ -146,6 +161,7 @@ void OperatingSystem_Initialize(int programsFromFileIndex) {
 		//processTable[i].copyControl=-1;
 		processTable[i].copyAccumulator=0;
 		//Inicio V1-EJ13
+		processTable[i].whenToWakeUp=-1;//ejercicio 5-v2
 	}
 	// Initialization of the interrupt vector table of the processor
 	Processor_InitializeInterruptVectorTable(OS_address_base+2);
@@ -559,7 +575,7 @@ void OperatingSystem_HandleSystemCall() {
 				OperatingSystem_SaveContext(executingProcessID);
 				ComputerSystem_DebugMessage(TIMED_MESSAGE,116,SHORTTERMSCHEDULE,executingProcessID,programList[processTable[executingProcessID].programListIndex]->executableName,readyToRunQueue[queueId][0].info,programList[processTable[firstElementPID].programListIndex]->executableName);
 				OperatingSystem_MoveToTheREADYState(executingProcessID);
-				OperatingSystem_Dispatch(OperatingSystem_ExtractFromReadyToRun());
+				OperatingSystem_Dispatch(OperatingSystem_ShortTermScheduler());
 
 				//inicio V2-Ej3-b
 				OperatingSystem_PrintStatus();
@@ -569,6 +585,12 @@ void OperatingSystem_HandleSystemCall() {
 			}
 			break;
 		//Fin V1-Ej12
+		//Inicio v2-ej5-f
+		case SYSCALL_SLEEP:
+			SleepingProcessesQueue();
+			OperatingSystem_PrintStatus();
+			break;
+		//Inicio v2-ej5-f
 	}
 }
 	
@@ -649,5 +671,90 @@ void  OperatingSystem_PrintReadyToRunQueue(){
 void OperatingSystem_HandleClockInterrupt(){ 
 	numberOfClockInterrupts++;
 	ComputerSystem_DebugMessage(TIMED_MESSAGE,120,INTERRUPT,numberOfClockInterrupts);
+
+	//Inicio v2-ej6
+	for(int i=0;i<numberOfSleepingProcesses;i++){
+		
+		int pidFirst = sleepingProcessesQueue[i].info;
+		if(pidFirst!=NOPROCESS){
+			if(processTable[pidFirst].whenToWakeUp==numberOfClockInterrupts){
+
+				int pid = OperatingSystem_ExtractFromBlockedToRun();
+
+				OperatingSystem_PreemptRunningProcess();
+
+				OperatingSystem_Dispatch(pid);
+
+				OperatingSystem_PrintStatus();
+			}
+
+		}
+
+		
+	}
+
+	CheckPriority();
+	//fin v2-ej6
+
 } 
 //Fin v2-Ej1-B y e
+
+//Inicio v2-ej5-f
+void SleepingProcessesQueue(){
+	int retardo;
+	if(Processor_GetRegisterD()<=0){
+		if(Processor_GetAccumulator()<0){
+			retardo = -Processor_GetAccumulator();
+		}
+		else{
+			retardo = Processor_GetAccumulator();
+		}
+	}else{
+		retardo = Processor_GetRegisterD();
+	}
+
+	retardo+=numberOfClockInterrupts+1;
+
+	processTable[executingProcessID].whenToWakeUp=retardo;
+
+	OperatingSystem_MoveToTheBlockState(executingProcessID);
+
+	OperatingSystem_SaveContext(executingProcessID);
+
+	OperatingSystem_Dispatch(OperatingSystem_ShortTermScheduler());
+
+}
+
+void OperatingSystem_MoveToTheBlockState(int PID) {
+	
+	if (Heap_add(PID, sleepingProcessesQueue ,QUEUE_WAKEUP ,&(numberOfSleepingProcesses))>=0) {
+		int previous = processTable[PID].state;
+		processTable[PID].state=BLOCKED;
+		ComputerSystem_DebugMessage(TIMED_MESSAGE,110,SYSPROC,PID,programList[processTable[PID].programListIndex]->executableName,statesNames[previous],statesNames[processTable[PID].state]);
+	}
+}
+
+//fin v2-ej5-f
+
+//inicio v2-ej6-a
+int OperatingSystem_ExtractFromBlockedToRun() {
+  
+	int selectedProcess=NOPROCESS;
+	selectedProcess=Heap_poll(sleepingProcessesQueue,QUEUE_WAKEUP ,&(numberOfSleepingProcesses));
+
+	return selectedProcess; 
+}
+//inicio v2-ej6-a
+
+//inicio v2-ej6-c
+void CheckPriority(){
+
+	int readyPriority = Heap_getFirst(readyToRunQueue[USERPROCESSQUEUE],numberOfReadyToRunProcesses[USERPROCESSQUEUE]);
+
+	if(processTable[executingProcessID].priority>readyPriority){
+		ComputerSystem_DebugMessage(TIMED_MESSAGE,121,SHORTTERMSCHEDULE,processTable[executingProcessID].priority,programList[processTable[executingProcessID].programListIndex]->executableName,processTable[readyPriority].priority,programList[processTable[readyPriority].programListIndex]->executableName);
+		OperatingSystem_PreemptRunningProcess(executingProcessID);
+		OperatingSystem_Dispatch(OperatingSystem_ShortTermScheduler());
+	}
+
+}

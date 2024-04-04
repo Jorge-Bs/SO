@@ -30,6 +30,7 @@ int registerCTRL_CPU; // Control bus Register
 int registerA_CPU; // General purpose register
 int registerB_CPU; // General purpose register
 int registerC_CPU; // System purpose register
+int registerD_CPU; //Ejercicio5-d-v2
 
 int registerSP_CPU; // Stack pointer register
 int interruptLines_CPU; // Processor interrupt lines
@@ -135,6 +136,7 @@ void Processor_DecodeAndExecuteInstruction() {
 		case TRAP_INST: 
 			Processor_RaiseInterrupt(SYSCALL_BIT);
 			registerC_CPU=operand1;
+			registerD_CPU=operand2;//Ejercicio 5-v2-e
 			registerPC_CPU++;
 			break;
 		
@@ -407,3 +409,9 @@ int Processor_PrivilegedMode(){
 	return Processor_PSW_BitState(EXECUTION_MODE_BIT);
 }
 //Fin V1-Ej15
+
+//Inicio v2-ej5-d
+int Processor_GetRegisterD() {
+  return registerD_CPU;
+}
+//Fin v2-ej5-d
