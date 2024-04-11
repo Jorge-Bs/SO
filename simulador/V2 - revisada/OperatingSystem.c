@@ -96,9 +96,6 @@ heapItem *sleepingProcessesQueue;
 int numberOfSleepingProcesses=0;
 //Fin V2-Ej5-b
 
-int erroresReady = 0; //Simulacro
-int erroresPrioridad =0 ;
-
 // Initial set of tasks of the OS
 void OperatingSystem_Initialize(int programsFromFileIndex) {
 	
@@ -165,8 +162,6 @@ void OperatingSystem_Initialize(int programsFromFileIndex) {
 		processTable[i].copyAccumulator=0;
 		//Inicio V1-EJ13
 		processTable[i].whenToWakeUp=-1;//ejercicio 5-v2
-		//Simulacro
-		processTable[i].clockTimes=3;
 	}
 	// Initialization of the interrupt vector table of the processor
 	Processor_InitializeInterruptVectorTable(OS_address_base+2);
@@ -458,7 +453,6 @@ void OperatingSystem_RestoreContext(int PID) {
 	// Same thing for the MMU registers
 	MMU_SetBase(processTable[PID].initialPhysicalAddress);
 	MMU_SetLimit(processTable[PID].processSize);
-
 }
 
 
@@ -492,9 +486,6 @@ void OperatingSystem_SaveContext(int PID) {
 	processTable[PID].copyAccumulator=Processor_GetAccumulator();
 	//processTable[PID].copyControl=Processor_GetCTRL();
 	//Fin V1-EJ13
-
-	//simulacro
-	processTable[PID].clockTimes=3;
 }
 
 
@@ -530,8 +521,6 @@ void OperatingSystem_TerminateExecutingProcess() {
 		Processor_PushInSystemStack(Processor_GetPSW());
 		executingProcessID=NOPROCESS;
 		ComputerSystem_DebugMessage(TIMED_MESSAGE,99,SHUTDOWN,"The system will shut down now...\n");
-		ComputerSystem_DebugMessage(TIMED_MESSAGE,122,EXAM,erroresReady);
-		ComputerSystem_DebugMessage(TIMED_MESSAGE,123,EXAM,erroresPrioridad);
 		return; // Don't dispatch any process
 	}
 
@@ -593,12 +582,6 @@ void OperatingSystem_HandleSystemCall() {
 				//Fin V2-Ej3-b
 			}else{
 				ComputerSystem_DebugMessage(TIMED_MESSAGE,117,SHORTTERMSCHEDULE,executingProcessID,programList[processTable[executingProcessID].programListIndex]->executableName);
-				//Simulacros
-				if(numberOfReadyToRunProcesses[queueId]<=0){
-					erroresReady++;
-				}else{
-					erroresPrioridad++;
-				}
 			}
 			break;
 		//Fin V1-Ej12
@@ -686,8 +669,6 @@ void  OperatingSystem_PrintReadyToRunQueue(){
 
 //Inicio v2-Ej1-B y e
 void OperatingSystem_HandleClockInterrupt(){ 
-
-
 	numberOfClockInterrupts++;
 	ComputerSystem_DebugMessage(TIMED_MESSAGE,120,INTERRUPT,numberOfClockInterrupts);
 
@@ -716,32 +697,6 @@ void OperatingSystem_HandleClockInterrupt(){
 
 	OperatingSystem_CheckPriority();
 	//fin v2-ej6
-
-	int tiempo =processTable[executingProcessID].clockTimes;
-	if(processTable[executingProcessID].queueID!=DAEMONSQUEUE){
-		if(tiempo==0){
-			int dormir = 1+numberOfClockInterrupts;
-			if(Processor_GetAccumulator()<0){
-				dormir -= Processor_GetAccumulator();
-			}else{
-				dormir += Processor_GetAccumulator();
-			}
-			processTable[executingProcessID].whenToWakeUp= dormir;
-			ComputerSystem_DebugMessage(TIMED_MESSAGE,124,EXAM,executingProcessID,programList[processTable[executingProcessID].programListIndex]->executableName);
-			OperatingSystem_MoveToTheBlockState(executingProcessID);
-
-			int pid = OperatingSystem_ShortTermScheduler();
-
-			//OperatingSystem_PreemptRunningProcess();
-
-			OperatingSystem_SaveContext(executingProcessID);
-
-			OperatingSystem_Dispatch(pid);
-		}else{
-			processTable[executingProcessID].clockTimes--;
-		}
-	}
-	
 
 } 
 //Fin v2-Ej1-B y e
@@ -796,6 +751,45 @@ int OperatingSystem_ExtractFromBlockedToRun() {
 //inicio v2-ej6-c
 void OperatingSystem_CheckPriority(){
 
+	if(numberOfReadyToRunProcesses[USERPROCESSQUEUE]>0){
+
+		int pidFirst = Heap_getFirst(readyToRunQueue[USERPROCESSQUEUE],numberOfReadyToRunProcesses[USERPROCESSQUEUE]);
+		int readyPriority = processTable[pidFirst].priority;
+
+		if(processTable[executingProcessID].queueID==USERPROCESSQUEUE){
+			if(processTable[executingProcessID].priority>readyPriority){
+				ComputerSystem_DebugMessage(TIMED_MESSAGE,121,SHORTTERMSCHEDULE,processTable[executingProcessID].priority,programList[processTable[executingProcessID].programListIndex]->executableName,processTable[pidFirst].priority,programList[processTable[pidFirst].programListIndex]->executableName);
+				OperatingSystem_PreemptRunningProcess();
+				OperatingSystem_Dispatch(OperatingSystem_ShortTermScheduler());
+
+				OperatingSystem_PrintStatus();//v2-ej6-d
+			}
+		}else{
+			ComputerSystem_DebugMessage(TIMED_MESSAGE,121,SHORTTERMSCHEDULE,processTable[executingProcessID].priority,programList[processTable[executingProcessID].programListIndex]->executableName,processTable[pidFirst].priority,programList[processTable[pidFirst].programListIndex]->executableName);
+			OperatingSystem_PreemptRunningProcess();
+			OperatingSystem_Dispatch(OperatingSystem_ShortTermScheduler());
+
+			OperatingSystem_PrintStatus();//v2-ej6-d
+		}
+	}
+	if(numberOfReadyToRunProcesses[DAEMONSQUEUE]>0){
+		int pidFirst = Heap_getFirst(readyToRunQueue[DAEMONSQUEUE],numberOfReadyToRunProcesses[DAEMONSQUEUE]);
+		int readyPriority = processTable[pidFirst].priority;
+
+		if(processTable[executingProcessID].queueID==DAEMONSQUEUE){
+			if(processTable[executingProcessID].priority>readyPriority){
+				ComputerSystem_DebugMessage(TIMED_MESSAGE,121,SHORTTERMSCHEDULE,processTable[executingProcessID].priority,programList[processTable[executingProcessID].programListIndex]->executableName,processTable[pidFirst].priority,programList[processTable[pidFirst].programListIndex]->executableName);
+				OperatingSystem_PreemptRunningProcess();
+				OperatingSystem_Dispatch(OperatingSystem_ShortTermScheduler());
+
+				OperatingSystem_PrintStatus();//v2-ej6-d
+			}
+		}
+	}
+
+
+
+	/*
 	int pidFirst = Heap_getFirst(readyToRunQueue[USERPROCESSQUEUE],numberOfReadyToRunProcesses[USERPROCESSQUEUE]);
 
 	if(pidFirst!=NOPROCESS){
@@ -808,7 +802,7 @@ void OperatingSystem_CheckPriority(){
 
 			OperatingSystem_PrintStatus();//v2-ej6-d
 		}
-	}
+	}*/
 
 }
 //fin v2-ej6-c
