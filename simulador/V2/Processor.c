@@ -30,7 +30,7 @@ int registerCTRL_CPU; // Control bus Register
 int registerA_CPU; // General purpose register
 int registerB_CPU; // General purpose register
 int registerC_CPU; // System purpose register
-int registerD_CPU; //Ejercicio5-d-v2
+int registerD_CPU; //Ejercicio v2-ej5-d
 
 int registerSP_CPU; // Stack pointer register
 int interruptLines_CPU; // Processor interrupt lines
@@ -136,7 +136,7 @@ void Processor_DecodeAndExecuteInstruction() {
 		case TRAP_INST: 
 			Processor_RaiseInterrupt(SYSCALL_BIT);
 			registerC_CPU=operand1;
-			registerD_CPU=operand2;//Ejercicio 5-v2-e
+			registerD_CPU=operand2;//Ejercicio v2-ej5-e
 			registerPC_CPU++;
 			break;
 		

@@ -7,7 +7,7 @@
             "request": "launch",
             "program": "${workspaceFolder}/Simulator",
             "args": [
-                "programVerySimple","prog-V2-E5"
+                "programVerySimple"
             ],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",

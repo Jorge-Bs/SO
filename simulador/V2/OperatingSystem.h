@@ -14,7 +14,7 @@
 
 #define NOPROCESS -1
 
-#define SLEEPINGQUEUE //Ejercicio 5-c-V2
+#define SLEEPINGQUEUE //Ejercicio v2-ej5-c
 
 // Number of queues of ready to run processes, initially one queue...
 //#define NUMBEROFQUEUES 1
