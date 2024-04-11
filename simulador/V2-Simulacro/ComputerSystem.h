@@ -3,7 +3,6 @@
 
 #include "Simulator.h"
 #include "ComputerSystemBase.h"
-#define ARRIVALQUEUE //v3-Ej1-b
 
 // Functions prototypes
 void ComputerSystem_PowerOn(int argc, char *argv[], int);
@@ -13,6 +12,5 @@ void ComputerSystem_PowerOff();
 // to the variables "programList", etc.
 extern PROGRAMS_DATA *programList[];
 extern char STUDENT_MESSAGES_FILE[];
-
 
 #endif

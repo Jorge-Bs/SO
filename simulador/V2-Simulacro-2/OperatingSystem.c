@@ -169,11 +169,6 @@ void OperatingSystem_Initialize(int programsFromFileIndex) {
 	// Include in program list all user or system daemon processes
 	OperatingSystem_PrepareDaemons(programsFromFileIndex);
 	
-	ComputerSystem_FillInArrivalTimeQueue();//V3-Ej1-c
-	
-	OperatingSystem_PrintStatus();//V3-Ej1-d
-
-
 	// Create all user processes from the information given in the command line
 	OperatingSystem_LongTermScheduler();
 	
@@ -213,40 +208,37 @@ void OperatingSystem_Initialize(int programsFromFileIndex) {
 // 			command line and daemons programs
 int OperatingSystem_LongTermScheduler() {
   
-	int PID, value,
+	int PID, i,
 		numberOfSuccessfullyCreatedProcesses=0;
-
-	while (OperatingSystem_IsThereANewProgram()==YES) {//V3-Ej2-Cambio en el while
-		//Inicio-V3-Ej2
-		value=Heap_poll(arrivalTimeQueue,QUEUE_ARRIVAL,&numberOfProgramsInArrivalTimeQueue);
-		PID=OperatingSystem_CreateProcess(value);
-		//Fin-V3-Ej2
+	
+	for (i=0; programList[i]!=NULL && i<PROGRAMSMAXNUMBER ; i++) {
+		PID=OperatingSystem_CreateProcess(i);
 		//Inicio V1-EJ4-B
 		if(PID==NOFREEENTRY){
-			ComputerSystem_DebugMessage(TIMED_MESSAGE,103,ERROR,programList[value]->executableName);
+			ComputerSystem_DebugMessage(TIMED_MESSAGE,103,ERROR,programList[i]->executableName);
 		}//Fin V1-EJ4-B
 		
 		//Incio V1-EJ5-B
 		else if(PID==PROGRAMDOESNOTEXIST){
-			ComputerSystem_DebugMessage(TIMED_MESSAGE,104,ERROR,programList[value]->executableName,"--- it does not exist ---");
+			ComputerSystem_DebugMessage(TIMED_MESSAGE,104,ERROR,programList[i]->executableName,"--- it does not exist ---");
 		}
 		//Fin V1-EJ5-B
 
 		//Inicio V1-EJ5-C
 		else if(PID==PROGRAMNOTVALID){
-			ComputerSystem_DebugMessage(TIMED_MESSAGE,104,ERROR,programList[value]->executableName,"--- invalid priority or size ---");
+			ComputerSystem_DebugMessage(TIMED_MESSAGE,104,ERROR,programList[i]->executableName,"--- invalid priority or size ---");
 		}
 		//Fin V1-EJ5-C
 
 		//Inicio V1-EJ6-B
 		else if(PID==TOOBIGPROCESS){
-			ComputerSystem_DebugMessage(TIMED_MESSAGE,105,ERROR,programList[value]->executableName);
+			ComputerSystem_DebugMessage(TIMED_MESSAGE,105,ERROR,programList[i]->executableName);
 		}
 		//Fin V1-EJ6-B
 
 		else{
 			numberOfSuccessfullyCreatedProcesses++;
-			if (programList[value]->type==USERPROGRAM) 
+			if (programList[i]->type==USERPROGRAM) 
 				numberOfNotTerminatedUserProcesses++;
 			// Move process to the ready state
 			OperatingSystem_MoveToTheREADYState(PID);
@@ -596,7 +588,7 @@ void OperatingSystem_HandleSystemCall() {
 		//Inicio v2-ej5-f
 		case SYSCALL_SLEEP:
 			OperatingSystem_SleepingProcessesQueue();
-			//OperatingSystem_PrintStatus();
+			OperatingSystem_PrintStatus();
 			break;
 		//Inicio v2-ej5-f
 	}
@@ -613,7 +605,7 @@ void OperatingSystem_InterruptLogic(int entryPoint){
 			break;
 		//Inicio V2-Ej1-c
 		case CLOCKINT_BIT:
-			OperatingSystem_HandleClockInterrupt();			
+			OperatingSystem_HandleClockInterrupt();
 			break;
 		//Fin V2-Ej1-C
 	}
@@ -703,12 +695,9 @@ void OperatingSystem_HandleClockInterrupt(){
 		
 	}
 
-
 	OperatingSystem_CheckPriority();
 	//fin v2-ej6
 
-	OperatingSystem_LongTermScheduler();//V3-Ej3
-	OperatingSystem_CheckPriority();//V3-Ej3
 } 
 //Fin v2-Ej1-B y e
 
@@ -762,52 +751,9 @@ int OperatingSystem_ExtractFromBlockedToRun() {
 //inicio v2-ej6-c
 void OperatingSystem_CheckPriority(){
 
-	
+	int pidFirst = Heap_getFirst(readyToRunQueue[USERPROCESSQUEUE],numberOfReadyToRunProcesses[USERPROCESSQUEUE]);
 
-	if(numberOfReadyToRunProcesses[USERPROCESSQUEUE]>0){
-
-		int pidFirst = Heap_getFirst(readyToRunQueue[USERPROCESSQUEUE],numberOfReadyToRunProcesses[USERPROCESSQUEUE]);
-		int readyPriority = processTable[pidFirst].priority;
-
-		if(processTable[executingProcessID].queueID==USERPROCESSQUEUE){
-			if(processTable[executingProcessID].priority>readyPriority){
-				ComputerSystem_DebugMessage(TIMED_MESSAGE,121,SHORTTERMSCHEDULE,processTable[executingProcessID].priority,programList[processTable[executingProcessID].programListIndex]->executableName,processTable[pidFirst].priority,programList[processTable[pidFirst].programListIndex]->executableName);
-				OperatingSystem_PreemptRunningProcess();
-				OperatingSystem_Dispatch(OperatingSystem_ShortTermScheduler());
-
-				OperatingSystem_PrintStatus();//v2-ej6-d
-			}
-		}else{
-			ComputerSystem_DebugMessage(TIMED_MESSAGE,121,SHORTTERMSCHEDULE,processTable[executingProcessID].priority,programList[processTable[executingProcessID].programListIndex]->executableName,processTable[pidFirst].priority,programList[processTable[pidFirst].programListIndex]->executableName);
-			OperatingSystem_PreemptRunningProcess();
-			OperatingSystem_Dispatch(OperatingSystem_ShortTermScheduler());
-
-			OperatingSystem_PrintStatus();//v2-ej6-d
-		}
-	}
-	if(numberOfReadyToRunProcesses[DAEMONSQUEUE]>0){
-		int pidFirst = Heap_getFirst(readyToRunQueue[DAEMONSQUEUE],numberOfReadyToRunProcesses[DAEMONSQUEUE]);
-		int readyPriority = processTable[pidFirst].priority;
-
-		if(processTable[executingProcessID].queueID==DAEMONSQUEUE){
-			if(processTable[executingProcessID].priority>readyPriority){
-				ComputerSystem_DebugMessage(TIMED_MESSAGE,121,SHORTTERMSCHEDULE,processTable[executingProcessID].priority,programList[processTable[executingProcessID].programListIndex]->executableName,processTable[pidFirst].priority,programList[processTable[pidFirst].programListIndex]->executableName);
-				OperatingSystem_PreemptRunningProcess();
-				OperatingSystem_Dispatch(OperatingSystem_ShortTermScheduler());
-
-				OperatingSystem_PrintStatus();//v2-ej6-d
-			}
-		}
-	}
-
-
-
-
-
-
-
-	/*
-	if(processTable[executingProcessID].queueID==USERPROCESSQUEUE && pidFirst!=NOPROCESS){
+	if(pidFirst!=NOPROCESS){
 		int readyPriority = processTable[pidFirst].priority;
 
 		if(processTable[executingProcessID].priority>readyPriority){
@@ -817,16 +763,7 @@ void OperatingSystem_CheckPriority(){
 
 			OperatingSystem_PrintStatus();//v2-ej6-d
 		}
+	}
 
-	}else if(processTable[executingProcessID].queueID==DAEMONSQUEUE){
-		ComputerSystem_DebugMessage(TIMED_MESSAGE,121,SHORTTERMSCHEDULE,processTable[executingProcessID].priority,programList[processTable[executingProcessID].programListIndex]->executableName,processTable[pidFirst].priority,programList[processTable[pidFirst].programListIndex]->executableName);
-		OperatingSystem_PreemptRunningProcess();
-		OperatingSystem_Dispatch(OperatingSystem_ShortTermScheduler());
-
-		OperatingSystem_PrintStatus();
-	}else{
-		int pidFirst = Heap_getFirst(readyToRunQueue[DAEMONSQUEUE],numberOfReadyToRunProcesses[USERPROCESSQUEUE]);
-		if()
-	}*/
 }
 //fin v2-ej6-c
