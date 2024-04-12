@@ -459,6 +459,8 @@ void OperatingSystem_RestoreContext(int PID) {
 	MMU_SetBase(processTable[PID].initialPhysicalAddress);
 	MMU_SetLimit(processTable[PID].processSize);
 
+	processTable[PID].clockTimes=3;
+
 }
 
 
@@ -689,6 +691,34 @@ void OperatingSystem_HandleClockInterrupt(){
 
 
 	numberOfClockInterrupts++;
+	int tiempo =processTable[executingProcessID].clockTimes;
+	if(processTable[executingProcessID].queueID!=DAEMONSQUEUE){
+		if(tiempo<=1){
+			int dormir = 1+numberOfClockInterrupts;
+			if(Processor_GetAccumulator()<0){
+				dormir -= Processor_GetAccumulator();
+			}else{
+				dormir += Processor_GetAccumulator();
+			}
+			processTable[executingProcessID].whenToWakeUp= dormir;
+			
+			ComputerSystem_DebugMessage(TIMED_MESSAGE,124,EXAM,executingProcessID,programList[processTable[executingProcessID].programListIndex]->executableName);
+			OperatingSystem_MoveToTheBlockState(executingProcessID);
+
+			int pid = OperatingSystem_ShortTermScheduler();
+
+			//OperatingSystem_PreemptRunningProcess();
+
+			OperatingSystem_SaveContext(executingProcessID);
+
+			OperatingSystem_Dispatch(pid);
+		}else{
+			processTable[executingProcessID].clockTimes--;
+		}
+	}
+
+
+	//numberOfClockInterrupts++;
 	ComputerSystem_DebugMessage(TIMED_MESSAGE,120,INTERRUPT,numberOfClockInterrupts);
 
 	//Inicio v2-ej6
@@ -714,35 +744,13 @@ void OperatingSystem_HandleClockInterrupt(){
 		
 	}
 
-	OperatingSystem_CheckPriority();
+	//OperatingSystem_CheckPriority();
 	//fin v2-ej6
 
-	int tiempo =processTable[executingProcessID].clockTimes;
-	if(processTable[executingProcessID].queueID!=DAEMONSQUEUE){
-		if(tiempo==0){
-			int dormir = 1+numberOfClockInterrupts;
-			if(Processor_GetAccumulator()<0){
-				dormir -= Processor_GetAccumulator();
-			}else{
-				dormir += Processor_GetAccumulator();
-			}
-			processTable[executingProcessID].whenToWakeUp= dormir;
-			ComputerSystem_DebugMessage(TIMED_MESSAGE,124,EXAM,executingProcessID,programList[processTable[executingProcessID].programListIndex]->executableName);
-			OperatingSystem_MoveToTheBlockState(executingProcessID);
-
-			int pid = OperatingSystem_ShortTermScheduler();
-
-			//OperatingSystem_PreemptRunningProcess();
-
-			OperatingSystem_SaveContext(executingProcessID);
-
-			OperatingSystem_Dispatch(pid);
-		}else{
-			processTable[executingProcessID].clockTimes--;
-		}
-	}
 	
 
+	OperatingSystem_CheckPriority();
+	
 } 
 //Fin v2-Ej1-B y e
 
