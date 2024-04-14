@@ -186,7 +186,7 @@ void OperatingSystem_Initialize(int programsFromFileIndex) {
 
 	//Inicio V1-Ej14// numberOfNotTerminatedUserProcesses==0 // programList[processTable[selectedProcess].programListIndex]->type==DAEMONPROGRAM
 	//Inicio-V3-ej4
-	if(numberOfProgramsInArrivalTimeQueue==0){ //anterior numberOfReadyToRunProcesses[USERPROCESSQUEUE]==0
+	if(numberOfReadyToRunProcesses[USERPROCESSQUEUE]==0 && numberOfProgramsInArrivalTimeQueue==0){ //anterior numberOfReadyToRunProcesses[USERPROCESSQUEUE]==0
 	//Fin-V3-ej4	
 		OperatingSystem_ReadyToShutdown();
 	}
@@ -260,6 +260,14 @@ int OperatingSystem_LongTermScheduler() {
 		OperatingSystem_PrintStatus();
 	}
 	//Fin v2-ej3-e
+
+	//Inicio v3-ej4
+	if (numberOfNotTerminatedUserProcesses==0 && numberOfProgramsInArrivalTimeQueue==0) {
+		OperatingSystem_ReadyToShutdown();
+	}
+	//Fin v3-ej4
+
+
 
 	// Return the number of succesfully created processes
 	return numberOfSuccessfullyCreatedProcesses;
@@ -541,7 +549,7 @@ void OperatingSystem_TerminateExecutingProcess() {
 		numberOfNotTerminatedUserProcesses--;
 	
 	//Inicio V3-Ej4 -> antes nada -> ahora: && numberOfProgramsInArrivalTimeQueue!=0
-	if (numberOfNotTerminatedUserProcesses==0 && numberOfProgramsInArrivalTimeQueue==0) {
+	if (numberOfReadyToRunProcesses[USERPROCESSQUEUE]==0 && numberOfProgramsInArrivalTimeQueue==0) {
 		// Simulation must finish, telling sipID to finish
 		OperatingSystem_ReadyToShutdown();
 	}
