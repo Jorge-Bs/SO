@@ -185,7 +185,9 @@ void OperatingSystem_Initialize(int programsFromFileIndex) {
 	}
 
 	//Inicio V1-Ej14// numberOfNotTerminatedUserProcesses==0 // programList[processTable[selectedProcess].programListIndex]->type==DAEMONPROGRAM
-	if(numberOfReadyToRunProcesses[USERPROCESSQUEUE]==0){
+	//Inicio-V3-ej4
+	if(numberOfProgramsInArrivalTimeQueue==0){ //anterior numberOfReadyToRunProcesses[USERPROCESSQUEUE]==0
+	//Fin-V3-ej4	
 		OperatingSystem_ReadyToShutdown();
 	}
 	//Fin V1-Ej14
@@ -538,10 +540,12 @@ void OperatingSystem_TerminateExecutingProcess() {
 		// One more user process that has terminated
 		numberOfNotTerminatedUserProcesses--;
 	
-	if (numberOfNotTerminatedUserProcesses==0) {
+	//Inicio V3-Ej4 -> antes nada -> ahora: && numberOfProgramsInArrivalTimeQueue!=0
+	if (numberOfNotTerminatedUserProcesses==0 && numberOfProgramsInArrivalTimeQueue==0) {
 		// Simulation must finish, telling sipID to finish
 		OperatingSystem_ReadyToShutdown();
 	}
+	//Fin V3-Ej4
 	// Select the next process to execute (sipID if no more user processes)
 	int selectedProcess=OperatingSystem_ShortTermScheduler();
 
