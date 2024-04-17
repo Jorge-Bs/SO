@@ -1,1 +1,1 @@
-Falta terminar el ejercico 6 -d
+Todos los ejercicios completados
