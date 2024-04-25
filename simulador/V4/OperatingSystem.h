@@ -62,6 +62,7 @@ typedef struct {
 // These "extern" declaration enables other source code files to gain access
 // to the variable listed
 
+#define MEMORYFULL -5 // In OperatingSystem.h //v4-ej6-d
 
 // Functions prototypes
 void OperatingSystem_Initialize(int);

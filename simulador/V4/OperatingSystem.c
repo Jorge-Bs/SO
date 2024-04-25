@@ -27,6 +27,7 @@ void OperatingSystem_HandleException();
 void OperatingSystem_HandleSystemCall();
 void OperatingSystem_SleepingProcessesQueue();//v2-ej5
 void OperatingSystem_MoveToTheBlockState(int);//v2-ej5
+void  OperatingSystem_ReleaseMainMemory();//V4-ej8
 //Inicio v2-Ej1-B
 void OperatingSystem_HandleClockInterrupt();
 //Fin v2-Ej1-B
@@ -248,13 +249,21 @@ int OperatingSystem_LongTermScheduler() {
 		}
 		//Fin V1-EJ5-C
 
+		
 		//Inicio V1-EJ6-B
 		else if(PID==TOOBIGPROCESS){
 			ComputerSystem_DebugMessage(TIMED_MESSAGE,105,ERROR,programList[value]->executableName);
 		}
 		//Fin V1-EJ6-B
+		
+		//Inicio V4-ej6 d
+		else if(PID==MEMORYFULL){
+			ComputerSystem_DebugMessage(TIMED_MESSAGE,144,ERROR,programList[value]->executableName);
+		}
+		//Fin V4-ej6 d
 
 		else{
+			OperatingSystem_ShowPartitionTable("after allocating memory"); //V4-ej7
 			numberOfSuccessfullyCreatedProcesses++;
 			if (programList[value]->type==USERPROGRAM) 
 				numberOfNotTerminatedUserProcesses++;
@@ -287,6 +296,7 @@ int OperatingSystem_CreateProcess(int indexOfExecutableProgram) {
 	int PID;
 	int processSize;
 	int loadingPhysicalAddress;
+	int partitionIndex; //v4-ej6-c
 	int priority;
 	FILE *programFile;
 	PROGRAMS_DATA *executableProgram=programList[indexOfExecutableProgram];
@@ -323,14 +333,33 @@ int OperatingSystem_CreateProcess(int indexOfExecutableProgram) {
 	}
 	//Fin V1-Ej5-C
 	
+	ComputerSystem_DebugMessage(TIMED_MESSAGE,142,SYSMEM,PID,executableProgram->executableName,processSize); // V4-ej6-b
+
 	// Obtain enough memory space
- 	loadingPhysicalAddress=OperatingSystem_ObtainMainMemory(processSize, PID);
+ 	partitionIndex=OperatingSystem_ObtainMainMemory(processSize, PID);
 
 	//Inicio V1-EJ6-A
-	if(loadingPhysicalAddress==TOOBIGPROCESS){
+	if(partitionIndex==TOOBIGPROCESS){//loadingPhysicalAddress
 		return TOOBIGPROCESS;
 	}
 	//Fin V1-EJ6-A
+
+	//Inicio V4-ej6-c
+
+	if(partitionIndex==MEMORYFULL){
+		return MEMORYFULL;
+	}
+
+	OperatingSystem_ShowPartitionTable("before allocating memory"); //V4-ej7
+
+	partitionsTable[partitionIndex].PID=PID;//V4-ej6
+
+
+	ComputerSystem_DebugMessage(TIMED_MESSAGE,143,SYSMEM,partitionIndex,partitionsTable[partitionIndex].initAddress,partitionsTable[partitionIndex].size,PID,executableProgram->executableName);
+
+	loadingPhysicalAddress=partitionsTable[partitionIndex].initAddress;
+	////Fin V4-ej6-c
+	
 
 	// Load program in the allocated memory
 	//Inicio V1-EJ7-A
@@ -358,10 +387,43 @@ int OperatingSystem_CreateProcess(int indexOfExecutableProgram) {
 // always obtains the chunk whose position in memory is equal to the processor identifier
 int OperatingSystem_ObtainMainMemory(int processSize, int PID) {
 
+	
+
  	if (processSize>MAINMEMORYSECTIONSIZE)
 		return TOOBIGPROCESS;
 	
- 	return PID*MAINMEMORYSECTIONSIZE;
+	int size = 300000;
+	int indice=-1;
+	int full=0;
+
+	//Inicio V4-ej6-a
+	for(int i=0;i<PARTITIONTABLEMAXSIZE;i++){
+		if(partitionsTable[i].size-processSize>=0 && partitionsTable[i].size-processSize< size){
+			if(partitionsTable[i].PID==NOPROCESS)
+			{
+				size = partitionsTable[i].size;
+				indice=i;
+				full=0;
+			}else{
+				size=300000;
+				full=1;
+			}		
+		}
+	}
+	//Fin V4-ej6-a
+
+	if(indice==-1){
+		return TOOBIGPROCESS;//V4-ej6-d
+	}
+
+	if(full==1){
+		return   MEMORYFULL;//V4-ej6-d
+	}
+
+
+	return indice;
+
+ 	//return PID*MAINMEMORYSECTIONSIZE; antes
 }
 
 
@@ -490,6 +552,7 @@ void OperatingSystem_PreemptRunningProcess() {
 	// Change the process' state
 	OperatingSystem_MoveToTheREADYState(executingProcessID);
 	// The processor is not assigned until the OS selects another process
+
 	executingProcessID=NOPROCESS;
 }
 
@@ -535,6 +598,17 @@ void OperatingSystem_HandleException() {
 
 // All tasks regarding the removal of the executing process
 void OperatingSystem_TerminateExecutingProcess() {
+
+	//inicio-V4-ej8
+
+	OperatingSystem_ShowPartitionTable("before releasing memory");
+	
+	OperatingSystem_ReleaseMainMemory();
+
+	OperatingSystem_ShowPartitionTable("after releasing memory");
+
+	//fin-V4-ej8
+
 
 	int previous=processTable[executingProcessID].state;//V1-EJ10-B
 
@@ -882,3 +956,25 @@ char* OperatingSystem_GetError(){
 }
 
 //Fin v4-ej2
+
+
+//Inicio V4-ej8
+
+void  OperatingSystem_ReleaseMainMemory(){
+
+	int index;
+
+
+	for(int i=0;i<PARTITIONTABLEMAXSIZE;i++){
+		if(partitionsTable[i].PID==executingProcessID){
+			index =i;
+			partitionsTable[i].PID=NOPROCESS;
+			break;
+		}
+	}
+
+	ComputerSystem_DebugMessage(TIMED_MESSAGE,145,SYSMEM,index,partitionsTable[index].initAddress,partitionsTable[index].size,executingProcessID,programList[processTable[executingProcessID].programListIndex]->executableName);
+
+}
+
+//Fin v4-ej8
