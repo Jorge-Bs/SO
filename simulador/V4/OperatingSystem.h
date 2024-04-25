@@ -16,6 +16,9 @@
 
 #define SLEEPINGQUEUE //Ejercicio v2-ej5-c
 
+// Partitions configuration definition 
+#define MEMCONFIG // in OperatingSystem.h //V4-Ej5-a
+
 // Number of queues of ready to run processes, initially one queue...
 //#define NUMBEROFQUEUES 1
 //enum TypeOfReadyToRunProcessQueues { ALLPROCESSESQUEUE }; 

@@ -98,6 +98,10 @@ heapItem *sleepingProcessesQueue;
 int numberOfSleepingProcesses=0;
 //Fin V2-Ej5-b
 
+
+int partitions; //V4-ej5
+
+
 // Initial set of tasks of the OS
 void OperatingSystem_Initialize(int programsFromFileIndex) {
 	
@@ -167,6 +171,8 @@ void OperatingSystem_Initialize(int programsFromFileIndex) {
 	}
 	// Initialization of the interrupt vector table of the processor
 	Processor_InitializeInterruptVectorTable(OS_address_base+2);
+
+	partitions = OperatingSystem_InitializePartitionTable(); //V4-ej5-b
 		
 	// Include in program list all user or system daemon processes
 	OperatingSystem_PrepareDaemons(programsFromFileIndex);
@@ -868,7 +874,7 @@ char* OperatingSystem_GetError(){
 			return "invalid_processor_mode";
 		case 2:
 			return "invalid_address";
-		case 3:
+		default:
 			return "invalid_instruction"; //V4-Ej3-b
 
 	}
