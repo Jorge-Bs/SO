@@ -11,7 +11,7 @@
 #include <time.h>
 
 // Functions prototypes
-void OperatingSystem_PCBInitialization(int, int, int, int, int);
+void OperatingSystem_PCBInitialization(int, int, int, int, int,int);//V4-ej6 añadir el ultimo int
 void OperatingSystem_MoveToTheREADYState(int);
 void OperatingSystem_Dispatch(int);
 void OperatingSystem_RestoreContext(int);
@@ -169,6 +169,8 @@ void OperatingSystem_Initialize(int programsFromFileIndex) {
 		processTable[i].copyAccumulator=0;
 		//Inicio V1-EJ13
 		processTable[i].whenToWakeUp=-1;//ejercicio 5-v2
+
+		processTable[i].partition=-1;//V4-ej6
 	}
 	// Initialization of the interrupt vector table of the processor
 	Processor_InitializeInterruptVectorTable(OS_address_base+2);
@@ -370,7 +372,7 @@ int OperatingSystem_CreateProcess(int indexOfExecutableProgram) {
 
 
 	// PCB initialization
-	OperatingSystem_PCBInitialization(PID, loadingPhysicalAddress, processSize, priority, indexOfExecutableProgram);
+	OperatingSystem_PCBInitialization(PID, loadingPhysicalAddress, processSize, priority, indexOfExecutableProgram,partitionIndex);
 	
 	// Show message "Process [PID] created from program [executableName]\n"
 	//ComputerSystem_DebugMessage(TIMED_MESSAGE,70,SYSPROC,PID,executableProgram->executableName);
@@ -397,7 +399,7 @@ int OperatingSystem_ObtainMainMemory(int processSize, int PID) {
 	int full=0;
 
 	//Inicio V4-ej6-a
-	for(int i=0;i<PARTITIONTABLEMAXSIZE;i++){
+	for(int i=0;i<partitions;i++){
 		if(partitionsTable[i].size-processSize>=0 && partitionsTable[i].size-processSize< size){
 			if(partitionsTable[i].PID==NOPROCESS)
 			{
@@ -428,7 +430,7 @@ int OperatingSystem_ObtainMainMemory(int processSize, int PID) {
 
 
 // Assign initial values to all fields inside the PCB
-void OperatingSystem_PCBInitialization(int PID, int initialPhysicalAddress, int processSize, int priority, int processPLIndex) {
+void OperatingSystem_PCBInitialization(int PID, int initialPhysicalAddress, int processSize, int priority, int processPLIndex,int partition) {//V4-ej6 -> añadir campo partition
 
 	processTable[PID].busy=1;
 	processTable[PID].initialPhysicalAddress=initialPhysicalAddress;
@@ -437,6 +439,8 @@ void OperatingSystem_PCBInitialization(int PID, int initialPhysicalAddress, int 
 	processTable[PID].state=NEW;
 	processTable[PID].priority=priority;
 	processTable[PID].programListIndex=processPLIndex;
+
+	processTable[PID].partition=partition;//V4-ej6
 
 	//Inicio V1-EJ11-C
 	processTable[PID].queueID=USERPROCESSQUEUE;
@@ -962,16 +966,18 @@ char* OperatingSystem_GetError(){
 
 void  OperatingSystem_ReleaseMainMemory(){
 
-	int index;
+	int index = processTable[executingProcessID].partition;
 
+	partitionsTable[index].PID=NOPROCESS;
 
+	/*
 	for(int i=0;i<PARTITIONTABLEMAXSIZE;i++){
 		if(partitionsTable[i].PID==executingProcessID){
 			index =i;
 			partitionsTable[i].PID=NOPROCESS;
 			break;
 		}
-	}
+	}*/
 
 	ComputerSystem_DebugMessage(TIMED_MESSAGE,145,SYSMEM,index,partitionsTable[index].initAddress,partitionsTable[index].size,executingProcessID,programList[processTable[executingProcessID].programListIndex]->executableName);
 
