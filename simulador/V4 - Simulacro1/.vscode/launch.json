@@ -1,0 +1,27 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Launch Simulator",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/Simulator",
+            "args": [
+                "--intervalBetweenInterrupts=15","--memorySize=600", "--memConfigFile=MemConfigEx1" ,"iDonExist0", "0" ,"ex1", "11" ,"iDontExist18","18" , "iDontExist22" ,"22" , "ex2", "36","iDontExist70", "70", "DontExist140", "140"
+            ],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ],
+            "preLaunchTask": "Build Simulator with make",
+            "miDebuggerPath": "/usr/bin/gdb"
+        },
+    ]
+}

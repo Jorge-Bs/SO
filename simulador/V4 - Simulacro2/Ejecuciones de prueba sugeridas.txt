@@ -1,0 +1,49 @@
+Ejercicio 1:
+./Simulator --intervalBetweenInterrupts=15 --memConfigFile=MemConfigEx1 --debugSections=XD iDonExist0 0 ex1 11 iDontExist18 18 iDontExist22 22 ex2 36 iDontExist70 70 iDontExist140 140
+
+Salida simulación de ejemplo del ejercicio 1:
+	[0] ERROR: Program [iDonExist0] is not valid [--- it does not exist ---]
+	[18] ERROR: Program [iDontExist18] is not valid [--- it does not exist ---]
+	[35] ERROR: Program [iDontExist22] is not valid [--- it does not exist ---]
+	[40] Process [3 - SystemIdleProcess] will make an EXECUTE-LTS Syscall
+	[62] Process [3 - SystemIdleProcess] will make an EXECUTE-LTS Syscall
+	[70] Process [3 - SystemIdleProcess] will make an EXECUTE-LTS Syscall
+	[70] ERROR: Program [iDontExist70] is not valid [--- it does not exist ---]
+	[75] Process [3 - SystemIdleProcess] will make an EXECUTE-LTS Syscall
+	[83] Process [3 - SystemIdleProcess] will make an EXECUTE-LTS Syscall
+	[88] Process [3 - SystemIdleProcess] will make an EXECUTE-LTS Syscall
+	[103] Process [1 - ex2] made a not allowed EXECUTE-LTS Syscall
+	[114] Process [3 - SystemIdleProcess] will make an EXECUTE-LTS Syscall
+	[119] Process [3 - SystemIdleProcess] will make an EXECUTE-LTS Syscall
+	[134] Process [3 - SystemIdleProcess] will make an EXECUTE-LTS Syscall
+	[142] Process [3 - SystemIdleProcess] will make an EXECUTE-LTS Syscall
+	[142] ERROR: Program [iDontExist140] is not valid [--- it does not exist ---]
+	[146] The system will shut down now...
+[148] END of the simulation
+
+
+Ejercicio 2:
+./Simulator --debugSections=XD --numProcesses=8 --memConfigFile=MemConfigEx2 ex3 8 ex3 23 ex4 21 ex4 80 ex5 ex5
+
+Salida simulación de ejemplo del ejercicio 2:
+        [14] Blocked process [1 - ex5] priority changes from [45] to [40] because internal fragmentation of partition [5] is [25.925928]
+        [17] Blocked process [1 - ex5] priority changes from [40] to [35] because internal fragmentation of partition [5] is [25.925928]
+        [64] Blocked process [4 - ex3] priority changes from [33] to [28] because internal fragmentation of partition [1] is [33.333332]
+        [67] Blocked process [4 - ex3] priority changes from [28] to [23] because internal fragmentation of partition [1] is [33.333332]
+        [74] Blocked process [4 - ex3] priority changes from [23] to [18] because internal fragmentation of partition [1] is [33.333332]
+        [77] Blocked process [4 - ex3] priority changes from [18] to [13] because internal fragmentation of partition [1] is [33.333332]
+        [84] Blocked process [4 - ex3] priority changes from [13] to [8] because internal fragmentation of partition [1] is [33.333332]
+        [84] Blocked process [1 - ex5] priority changes from [35] to [30] because internal fragmentation of partition [5] is [25.925928]
+        [87] Blocked process [4 - ex3] priority changes from [8] to [3] because internal fragmentation of partition [1] is [33.333332]
+        [87] Blocked process [1 - ex5] priority changes from [30] to [25] because internal fragmentation of partition [5] is [25.925928]
+        [94] Blocked process [5 - ex4] priority changes from [24] to [19] because internal fragmentation of partition [3] is [26.829266]
+        [94] Blocked process [1 - ex5] priority changes from [25] to [20] because internal fragmentation of partition [5] is [25.925928]
+        [97] Blocked process [5 - ex4] priority changes from [19] to [14] because internal fragmentation of partition [3] is [26.829266]
+        [97] Blocked process [1 - ex5] priority changes from [20] to [15] because internal fragmentation of partition [5] is [25.925928]
+        [104] Blocked process [1 - ex5] priority changes from [15] to [10] because internal fragmentation of partition [5] is [25.925928]
+        [104] Blocked process [5 - ex4] priority changes from [14] to [9] because internal fragmentation of partition [3] is [26.829266]
+        [107] Blocked process [1 - ex5] priority changes from [10] to [5] because internal fragmentation of partition [5] is [25.925928]
+        [107] Blocked process [5 - ex4] priority changes from [9] to [4] because internal fragmentation of partition [3] is [26.829266]
+        [114] Blocked process [1 - ex5] priority changes from [5] to [0] because internal fragmentation of partition [5] is [25.925928]
+        [216] The system will shut down now...
+[224] END of the simulation

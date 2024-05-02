@@ -50,7 +50,7 @@ void ComputerSystem_PowerOn(int argc, char *argv[], int paramIndex) {
 
 	ComputerSystem_PrintProgramList();//V1-Ej2
 
-	arrivalTimeQueue = Heap_create(PROGRAMSMAXNUMBER);//V3 Ej1-a cambiar procesTableMaxSize por PROGRAMSMAXNUMBER
+	arrivalTimeQueue = Heap_create(PROGRAMSMAXNUMBER);
 
 	// Request the OS to do the initial set of tasks. The last one will be
 	// the processor allocation to the process with the highest priority

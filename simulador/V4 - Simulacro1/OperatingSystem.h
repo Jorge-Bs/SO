@@ -1,0 +1,75 @@
+#ifndef OPERATINGSYSTEM_H
+#define OPERATINGSYSTEM_H
+
+#include "ComputerSystem.h"
+#include <stdio.h>
+
+
+#define SUCCESS 1
+#define PROGRAMDOESNOTEXIST -1
+#define PROGRAMNOTVALID -2
+
+#define NOFREEENTRY -3
+#define TOOBIGPROCESS -4
+
+#define NOPROCESS -1
+
+#define SLEEPINGQUEUE //Ejercicio v2-ej5-c
+
+// Partitions configuration definition 
+#define MEMCONFIG // in OperatingSystem.h //V4-Ej5-a
+
+// Number of queues of ready to run processes, initially one queue...
+//#define NUMBEROFQUEUES 1
+//enum TypeOfReadyToRunProcessQueues { ALLPROCESSESQUEUE }; 
+//Inicio V1-Ej11-A
+#define NUMBEROFQUEUES 2 
+enum TypeOfReadyToRunProcessQueues { USERPROCESSQUEUE, DAEMONSQUEUE};
+//Fin V1-Ej-A
+
+// Contains the possible type of programs
+enum ProgramTypes { USERPROGRAM=100, DAEMONPROGRAM }; 
+
+// Enumerated type containing all the possible process states
+enum ProcessStates { NEW, READY, EXECUTING, BLOCKED, EXIT};
+
+// Enumerated type containing the list of system calls and their numeric identifiers
+enum SystemCallIdentifiers { SYSCALL_END=3, SYSCALL_YIELD=4,SYSCALL_PRINTEXECPID=5,SYSCALL_SLEEP=7,SYSCALL_EXECUTELTS=9};//Ejercicio V1-12 SYSCALL_YIELD=4 antes = nada
+//Simulacro-1 añadir syscall9
+
+// A PCB contains all of the information about a process that is needed by the OS
+typedef struct {
+	int busy;
+	int initialPhysicalAddress;
+	int processSize;
+	int copyOfSPRegister;
+	int state;
+	int priority;
+	int copyOfPCRegister;
+	unsigned int copyOfPSWRegister;
+	int programListIndex;
+	//Inicio V1-Ej11-B
+	int queueID;
+	//Fin V1-Ej11-B
+	//Inicio V1-EJ13
+	int copyARegister;
+	int copyBRegister;
+	//int copyControl;
+	int copyAccumulator;
+	//Fin V1-EJ13
+	int whenToWakeUp; // Exercise 5-a of V2
+
+	int partition;//V4-ej6
+} PCB;
+
+// These "extern" declaration enables other source code files to gain access
+// to the variable listed
+
+#define MEMORYFULL -5 // In OperatingSystem.h //v4-ej6-d
+
+// Functions prototypes
+void OperatingSystem_Initialize(int);
+void OperatingSystem_InterruptLogic(int);
+int OperatingSystem_ShortTermScheduler();
+void OperatingSystem_Dispatch(int);
+#endif
