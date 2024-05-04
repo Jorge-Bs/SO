@@ -43,6 +43,9 @@ int OperatingSystem_ExtractFromBlockedToRun();//v2-ej6
 void  OperatingSystem_PrintReadyToRunQueue();
 //Final V1-Ej9
 
+
+int OperatingSystem_ObtainMaxSizePartition(); //v4-Ej6
+
 // The process table
 // PCB processTable[PROCESSTABLEMAXSIZE];
 PCB * processTable;
@@ -391,12 +394,20 @@ int OperatingSystem_ObtainMainMemory(int processSize, int PID) {
 
 	
 
- 	if (processSize>MAINMEMORYSECTIONSIZE)
+ 	if (processSize>MAINMEMORYSECTIONSIZE){
 		return TOOBIGPROCESS;
+	}
+
+
+	int maxSizePartition = OperatingSystem_ObtainMaxSizePartition();	//V4-ej6-d
+
+	if(processSize>maxSizePartition){
+		return TOOBIGPROCESS;//V4-ej6-d
+	}
 	
-	int size = 300000;
+	int size = maxSizePartition;
 	int indice=-1;
-	int full=0;
+	int full=1;
 
 	//Inicio V4-ej6-a
 	for(int i=0;i<partitions;i++){
@@ -406,17 +417,10 @@ int OperatingSystem_ObtainMainMemory(int processSize, int PID) {
 				size = partitionsTable[i].size;
 				indice=i;
 				full=0;
-			}else{
-				size=300000;
-				full=1;
-			}		
+			}	
 		}
 	}
 	//Fin V4-ej6-a
-
-	if(indice==-1){
-		return TOOBIGPROCESS;//V4-ej6-d
-	}
 
 	if(full==1){
 		return   MEMORYFULL;//V4-ej6-d
@@ -984,3 +988,20 @@ void  OperatingSystem_ReleaseMainMemory(){
 }
 
 //Fin v4-ej8
+
+
+//Inicio V4 - ej6
+int OperatingSystem_ObtainMaxSizePartition(){
+
+	int size=0;
+
+	for(int  i=0;i<partitions;i++){
+		if(partitionsTable[i].size>size){
+			size=partitionsTable[i].size;
+		}
+	}
+
+	return size;
+
+}
+//Fin v4-ej6
