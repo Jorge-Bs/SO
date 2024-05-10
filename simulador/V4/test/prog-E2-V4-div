@@ -1,0 +1,7 @@
+10
+5
+NOP
+TRAP 5
+DIV 2 0 // Exception type: Division by zero
+WRITE 15
+HALT

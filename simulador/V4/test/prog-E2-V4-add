@@ -1,0 +1,6 @@
+10
+5
+NOP
+READ 5555 // Type exception: invalid_address
+WRITE 15
+HALT

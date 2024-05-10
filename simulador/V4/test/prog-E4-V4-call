@@ -1,0 +1,6 @@
+12
+5
+NOP
+TRAP 777 // invalid syscall
+WRITE 15
+HALT

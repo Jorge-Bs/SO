@@ -20,7 +20,7 @@ void OperatingSystem_TerminateExecutingProcess();
 int OperatingSystem_LongTermScheduler();
 void OperatingSystem_PreemptRunningProcess();
 int OperatingSystem_CreateProcess(int);
-int OperatingSystem_ObtainMainMemory(int, int);
+int OperatingSystem_ObtainMainMemory(int);//antes parametro PID, segundo int
 int OperatingSystem_ShortTermScheduler();
 int OperatingSystem_ExtractFromReadyToRun();
 void OperatingSystem_HandleException();
@@ -341,7 +341,7 @@ int OperatingSystem_CreateProcess(int indexOfExecutableProgram) {
 	ComputerSystem_DebugMessage(TIMED_MESSAGE,142,SYSMEM,PID,executableProgram->executableName,processSize); // V4-ej6-b
 
 	// Obtain enough memory space
- 	partitionIndex=OperatingSystem_ObtainMainMemory(processSize, PID);
+ 	partitionIndex=OperatingSystem_ObtainMainMemory(processSize);//antes parametro PID
 
 	//Inicio V1-EJ6-A
 	if(partitionIndex==TOOBIGPROCESS){//loadingPhysicalAddress
@@ -390,7 +390,7 @@ int OperatingSystem_CreateProcess(int indexOfExecutableProgram) {
 
 // Main memory is assigned in chunks. All chunks are the same size. A process
 // always obtains the chunk whose position in memory is equal to the processor identifier
-int OperatingSystem_ObtainMainMemory(int processSize, int PID) {
+int OperatingSystem_ObtainMainMemory(int processSize) {//antes parametro PID
 
 	
 
@@ -414,7 +414,7 @@ int OperatingSystem_ObtainMainMemory(int processSize, int PID) {
 		if(partitionsTable[i].size-processSize>=0 && partitionsTable[i].size-processSize< size){
 			if(partitionsTable[i].PID==NOPROCESS)
 			{
-				size = partitionsTable[i].size;
+				size = partitionsTable[i].size-processSize;
 				indice=i;
 				full=0;
 			}	

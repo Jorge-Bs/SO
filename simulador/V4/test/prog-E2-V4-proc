@@ -1,0 +1,6 @@
+13
+5
+NOP
+OS 2 // Type exception: invalid_processor_mode
+WRITE 15
+HALT

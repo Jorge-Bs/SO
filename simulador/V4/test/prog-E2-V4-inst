@@ -1,0 +1,6 @@
+11
+5
+NOP
+PEPITO 5555 // Type exception: invalid_instruction
+WRITE 15
+HALT

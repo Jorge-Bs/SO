@@ -7,7 +7,8 @@
             "request": "launch",
             "program": "${workspaceFolder}/Simulator",
             "args": [
-                "programVerySimple","2","prog-v4-ej2","1","prog-v4-4","0"
+                "--debugSections=MDO", "--memConfigFile=test/memConfigRuben",
+                 "--memorySize=600",  "--numProcesses=6", "test/size62", "test/size58","test/size40"
             ],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
