@@ -1,2 +1,0 @@
-Todos los ejercicios completados, se ha comprobado el correcto funcionamiento con los test que proporcionaste y también los comprobe 
-con los ejercicios prog-V4- que hay en esta carpeta, el valor despues del guion se refiere al ejercicio al que esta destinado su comprobacion.
